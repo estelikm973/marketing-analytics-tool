@@ -19,7 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <GoogleAnalytics gaId="GTM-TWWNGHNB" />
+      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID || ""} />
       <body className={inter.className}>
         <div className="flex">
           <SideNav />
