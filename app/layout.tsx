@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import "./globals.css";
 import SideNav from "@/components/Layout/SideNav";
 import TopNav from "@/components/Layout/TopNav";
+import { GoogleAnalytics } from "@next/third-parties/google";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -18,6 +19,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      <GoogleAnalytics gaId="GTM-TWWNGHNB" />
       <body className={inter.className}>
         <div className="flex">
           <SideNav />
