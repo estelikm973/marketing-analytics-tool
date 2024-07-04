@@ -19,8 +19,6 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID || ""} />
-      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID_2 || ""} />
       <body className={inter.className}>
         <div className="flex">
           <SideNav />
@@ -30,6 +28,7 @@ export default function RootLayout({
           </div>
         </div>
       </body>
+      <GoogleAnalytics gaId={process.env.GOOGLE_ANALYTICS_ID || ""} />
     </html>
   );
 }

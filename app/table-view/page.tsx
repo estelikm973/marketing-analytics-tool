@@ -1,4 +1,9 @@
 import { EventButton } from "@/components/Analytics/EventButton";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Table View - Marketing Analytics Tool",
+};
 
 export default function TableView() {
   return (
