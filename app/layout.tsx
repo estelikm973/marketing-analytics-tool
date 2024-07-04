@@ -4,6 +4,7 @@ import "./globals.css";
 import SideNav from "@/components/Layout/SideNav";
 import TopNav from "@/components/Layout/TopNav";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import { triggerTestEvent } from "@/actions/triggerEvents";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -24,6 +25,9 @@ export default function RootLayout({
           <SideNav />
           <div className="flex-1">
             <TopNav />
+            <form action={triggerTestEvent}>
+              <button>Trigger Event</button>
+            </form>
             {children}
           </div>
         </div>
