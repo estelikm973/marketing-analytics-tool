@@ -4,6 +4,7 @@ import "./globals.css";
 import SideNav from "@/components/Layout/SideNav";
 import TopNav from "@/components/Layout/TopNav";
 import { GoogleAnalytics } from "@next/third-parties/google";
+import "@/libs/firebase";
 
 const inter = Inter({ subsets: ["latin"] });
 
