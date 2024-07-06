@@ -24,8 +24,8 @@ const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
         {tableRows.map((row, index) => {
           return (
             <tr key={index}>
-              {row.map((el) => (
-                <td className="py-3 px-6 border border-black" key={el}>
+              {row.map((el, index) => (
+                <td className="py-3 px-6 border border-black" key={index}>
                   {el}
                 </td>
               ))}

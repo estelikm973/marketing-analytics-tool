@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import TestTable from "./TestTable";
+import TestTable2 from "./TestTable2";
 
 export const metadata: Metadata = {
   title: "Table View - Marketing Analytics Tool",
@@ -12,7 +13,10 @@ export default async function TableView() {
       <main>
         <h1 className="text-3xl font-medium mb-8">Table View</h1>
         <Suspense fallback={<div>loading...</div>}>
-          <TestTable />
+          <TestTable2 />
+          <div className="mt-16">
+            <TestTable />
+          </div>
         </Suspense>
       </main>
     </div>
