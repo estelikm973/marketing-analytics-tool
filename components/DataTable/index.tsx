@@ -7,18 +7,14 @@ interface IDataTableProps {
 
 const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
   return (
-    <table className="table-auto border-collapse ">
-      <caption className="caption-bottom text-gray-500 text-xs my-4">
+    <table className="table-auto border-collapse border border-black">
+      <caption className="sr-only caption-bottom text-gray-500 text-xs my-4">
         Data from Google Analytics API
       </caption>
-      <thead className="bg-slate-200">
+      <thead className="bg-orange-200">
         <tr>
           {tableHeaders.map((el) => (
-            <th
-              className="p-3 text-left border border-slate-300"
-              scope="col"
-              key={el}
-            >
+            <th className="py-3 px-6 text-left" scope="col" key={el}>
               {el}
             </th>
           ))}
@@ -29,7 +25,7 @@ const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
           return (
             <tr key={index}>
               {row.map((el) => (
-                <td className="p-3 border border-slate-300" key={el}>
+                <td className="py-3 px-6 border border-black" key={el}>
                   {el}
                 </td>
               ))}

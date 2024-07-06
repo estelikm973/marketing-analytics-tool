@@ -2,9 +2,36 @@
 
 import { analyticsDataClient } from "@/libs/google";
 
-async function runReport() {
-  const propertyId = "448983413";
+const propertyId = "448983413";
 
+const dimensions = [
+  {
+    name: "campaignName",
+  },
+];
+
+const metrics = [
+  {
+    name: "advertiserAdCost",
+  },
+  {
+    name: "advertiserAdClicks",
+  },
+  {
+    name: "advertiserAdImpressions",
+  },
+  {
+    name: "itemPromotionClickThroughRate",
+  },
+  {
+    name: "totalRevenue",
+  },
+  {
+    name: "returnOnAdSpend",
+  },
+];
+
+async function runReport() {
   const res = await analyticsDataClient.runReport({
     property: `properties/${propertyId}`,
     dateRanges: [
@@ -13,38 +40,48 @@ async function runReport() {
         endDate: "2024-07-06",
       },
     ],
-    dimensions: [
-      {
-        name: "pageTitle",
-      },
-      // {
-      //   name: "date",
-      // },
-    ],
-    metrics: [
-      {
-        name: "screenPageViews",
-      },
-      // {
-      //   name: "totalUsers",
-      // },
-    ],
+    dimensions,
+    metrics,
   });
 
   return res[0];
 }
+
+export const getMetaData = async () => {
+  try {
+    const res = await analyticsDataClient.getMetadata({
+      name: `properties/${propertyId}/metadata`,
+    });
+
+    return res[0];
+  } catch (err: any) {
+    console.error(err || "Server Error");
+    return null;
+  }
+};
+
 export const getTableData = async () => {
   try {
     const report = await runReport();
 
+    const metaData = await getMetaData();
+
     const headers: string[] = [];
 
     report.dimensionHeaders?.forEach((header) => {
-      headers.push(header.name || "N/A");
+      const uiName = metaData?.dimensions?.find(
+        (el) => el.apiName === header.name
+      )?.uiName;
+
+      headers.push(uiName || header.name || "N/A");
     });
 
     report.metricHeaders?.forEach((header) => {
-      headers.push(header.name || "N/A");
+      const uiName = metaData?.metrics?.find(
+        (el) => el.apiName === header.name
+      )?.uiName;
+      console.log({ uiName, header });
+      headers.push(uiName || header.name || "N/A");
     });
 
     const rows: string[][] = [];
