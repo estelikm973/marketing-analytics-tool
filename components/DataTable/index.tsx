@@ -3,11 +3,16 @@ import { FC } from "react";
 interface IDataTableProps {
   tableHeaders: string[];
   tableRows: string[][];
+  tableFooters: string[];
 }
 
-const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
+const DataTable: FC<IDataTableProps> = ({
+  tableHeaders,
+  tableRows,
+  tableFooters,
+}) => {
   return (
-    <table className="table-auto border-collapse border border-black">
+    <table className="table-auto border-collapse border border-black bg-white">
       <caption className="sr-only caption-bottom text-gray-500 text-xs my-4">
         Data from Google Analytics API
       </caption>
@@ -25,7 +30,12 @@ const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
           return (
             <tr key={index}>
               {row.map((el, index) => (
-                <td className="py-3 px-6 border border-black" key={index}>
+                <td
+                  className={`py-3 px-6 border border-black ${
+                    index === 0 ? "bg-orange-200" : ""
+                  }`}
+                  key={index}
+                >
                   {el}
                 </td>
               ))}
@@ -33,6 +43,21 @@ const DataTable: FC<IDataTableProps> = ({ tableHeaders, tableRows }) => {
           );
         })}
       </tbody>
+      <tfoot>
+        <tr>
+          <td className={"py-3 px-6 border border-black bg-orange-200"}>
+            Total
+          </td>
+          {tableFooters.map((el, index) => (
+            <td
+              className={"py-3 px-6 border border-black"}
+              key={index}
+            >
+              {el}
+            </td>
+          ))}
+        </tr>
+      </tfoot>
     </table>
   );
 };

@@ -35,9 +35,6 @@ const dimensions2 = [
   {
     name: "pageTitle",
   },
-  {
-    name: "audienceName",
-  },
 ];
 
 const metrics2 = [
@@ -58,6 +55,7 @@ export async function runReport(dimensions: any[], metrics: any[]) {
     ],
     dimensions,
     metrics,
+    metricAggregations: [1],
   });
 
   return res[0];
@@ -83,6 +81,20 @@ export const getTableData = async () => {
     const metaData = await getMetaData();
 
     const headers: string[] = [];
+    const totals: string[] = [];
+
+    if (report.totals && report.totals.length > 0) {
+      report.totals[0].metricValues?.forEach((el) => {
+        const val = el.value;
+
+        if (isNaN(Number(val))) {
+          totals.push(val || "N/A");
+        } else {
+          const numVal = parseFloat(Number(val).toFixed(2));
+          totals.push(numVal.toString());
+        }
+      });
+    }
 
     report.dimensionHeaders?.forEach((header) => {
       const uiName = metaData?.dimensions?.find(
@@ -102,7 +114,7 @@ export const getTableData = async () => {
 
     const rows: string[][] = [];
 
-    report.rows?.forEach((row) => {
+    report.rows?.forEach((row, index) => {
       const rowData: string[] = [];
 
       row.dimensionValues?.forEach((el) => {
@@ -110,26 +122,46 @@ export const getTableData = async () => {
       });
 
       row.metricValues?.forEach((el) => {
-        rowData.push(el.value || "N/A");
+        const val = el.value;
+
+        if (isNaN(Number(val))) {
+          rowData.push(val || "N/A");
+        } else {
+          const numVal = parseFloat(Number(val).toFixed(2));
+          rowData.push(numVal.toString());
+        }
       });
 
       rows.push(rowData);
     });
 
-    return { headers, rows };
+    return { headers, rows, totals };
   } catch (err: any) {
     console.error(err || "Server Error");
-    return { headers: [], rows: [] };
+    return { headers: [], rows: [], totals: [] };
   }
 };
 
 export const getTable2Data = async () => {
   try {
     const report = await runReport(dimensions2, metrics2);
-
     const metaData = await getMetaData();
 
     const headers: string[] = [];
+    const totals: string[] = [];
+
+    if (report.totals && report.totals.length > 0) {
+      report.totals[0].metricValues?.forEach((el) => {
+        const val = el.value;
+
+        if (isNaN(Number(val))) {
+          totals.push(val || "N/A");
+        } else {
+          const numVal = parseFloat(Number(val).toFixed(2));
+          totals.push(numVal.toString());
+        }
+      });
+    }
 
     report.dimensionHeaders?.forEach((header) => {
       const uiName = metaData?.dimensions?.find(
@@ -157,15 +189,22 @@ export const getTable2Data = async () => {
       });
 
       row.metricValues?.forEach((el) => {
-        rowData.push(el.value || "N/A");
+        const val = el.value;
+
+        if (isNaN(Number(val))) {
+          rowData.push(val || "N/A");
+        } else {
+          const numVal = parseFloat(Number(val).toFixed(2));
+          rowData.push(numVal.toString());
+        }
       });
 
       rows.push(rowData);
     });
 
-    return { headers, rows };
+    return { headers, rows, totals };
   } catch (err: any) {
     console.error(err || "Server Error");
-    return { headers: [], rows: [] };
+    return { headers: [], rows: [], totals: [] };
   }
 };
