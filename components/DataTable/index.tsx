@@ -1,6 +1,6 @@
 import { FC } from "react";
 
-interface IDataTableProps {
+export interface IDataTableProps {
   tableHeaders: string[];
   tableRows: string[][];
   tableFooters: string[];
@@ -49,10 +49,7 @@ const DataTable: FC<IDataTableProps> = ({
             Total
           </td>
           {tableFooters.map((el, index) => (
-            <td
-              className={"py-3 px-6 border border-black"}
-              key={index}
-            >
+            <td className={"py-3 px-6 border border-black"} key={index}>
               {el}
             </td>
           ))}

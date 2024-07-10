@@ -42,7 +42,7 @@ const GridChart: FC<IGridChartProps> = ({
 
   const chartConfig = {
     views: {
-      label: "Page Views",
+      label: yLabel,
     },
     yDataKey: {
       label: yLabel,
@@ -69,7 +69,11 @@ const GridChart: FC<IGridChartProps> = ({
               className="w-[150px]"
               nameKey="views"
               labelFormatter={(value) => {
-                return dayjs(value).format("MMM DD, YYYY");
+                if (dayjs(value).isValid()) {
+                  return dayjs(value).format("MMM DD, YYYY");
+                } else {
+                  return value;
+                }
               }}
             />
           }
