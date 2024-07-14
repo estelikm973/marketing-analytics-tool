@@ -1,9 +1,14 @@
 "use client";
 
-import * as React from "react";
+import {
+  Dispatch,
+  FC,
+  SetStateAction,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
-
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   Command,
@@ -18,24 +23,45 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { IGAMetric } from "@/lib/types";
+import {
+  getCompatibleDimensionsAndMetrics,
+  getMetaData,
+} from "@/actions/analytics";
 
-interface IMetricSelectProps {
-  metrics: IGAMetric[];
-  selectedMetrics: IGAMetric[];
-  loading: boolean;
-  tempValue: IGAMetric;
-  setTempValue: (tempValue: IGAMetric) => void;
+interface ISelectGAMetricProps {
+  metricKey: string;
+  setMetricKey: Dispatch<SetStateAction<string>>;
 }
 
-export function MetricSelect({
-  metrics,
-  loading,
-  tempValue,
-  setTempValue,
-  selectedMetrics,
-}: IMetricSelectProps) {
-  const [open, setOpen] = React.useState(false);
+const SelectGAMetric: FC<ISelectGAMetricProps> = ({
+  metricKey,
+  setMetricKey,
+}) => {
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [gaMetrics, setGAMetrics] = useState<IGAMetric[]>([]);
+
+  const getMetrics = useCallback(async () => {
+    setLoading(true);
+    const res = await getCompatibleDimensionsAndMetrics([], []);
+    const metrics = res?.[0].metricCompatibilities;
+    if (metrics?.length) {
+      setGAMetrics(
+        metrics.map((el) => ({
+          apiName: el.metricMetadata?.apiName,
+          uiName: el.metricMetadata?.uiName,
+        })) || []
+      );
+    }
+
+    setLoading(false);
+  }, []);
+
+  useEffect(() => {
+    getMetrics();
+  }, [getMetrics]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -44,18 +70,17 @@ export function MetricSelect({
           variant="outline"
           role="combobox"
           aria-expanded={open}
-          className="w-80 justify-between"
+          className="justify-between w-full"
         >
-          {tempValue.apiName
-            ? metrics.find((metric) => metric.apiName === tempValue.apiName)
-                ?.uiName
+          {metricKey
+            ? gaMetrics.find((metric) => metric.apiName === metricKey)?.uiName
             : "Select metric..."}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-80 p-0">
+      <PopoverContent className="w-full p-0">
         <Command>
-          <CommandInput placeholder="Search metric..." />
+          <CommandInput placeholder="Search..." />
           <CommandList>
             {loading ? (
               <CommandItem disabled className="px-4 py-2">
@@ -63,25 +88,22 @@ export function MetricSelect({
               </CommandItem>
             ) : (
               <>
-                <CommandEmpty>No metric found.</CommandEmpty>
+                <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
-                  {metrics.length > 0 &&
-                    metrics.map((metric) => (
+                  {gaMetrics.length > 0 &&
+                    gaMetrics.map((metric) => (
                       <CommandItem
                         key={metric.apiName}
                         value={metric.uiName || ""}
                         onSelect={(_currentValue) => {
-                          setTempValue(metric);
                           setOpen(false);
+                          setMetricKey(metric.apiName || "");
                         }}
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            selectedMetrics?.some(
-                              (selectedMetric) =>
-                                selectedMetric.apiName === metric.apiName
-                            )
+                            metric.apiName === metricKey
                               ? "opacity-100"
                               : "opacity-0"
                           )}
@@ -97,4 +119,6 @@ export function MetricSelect({
       </PopoverContent>
     </Popover>
   );
-}
+};
+
+export default SelectGAMetric;

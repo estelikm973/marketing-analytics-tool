@@ -1,13 +1,11 @@
-"use client";
-
-import CreateReport from "./CreateReport";
-import MyReports from "./MyReports";
+import CreateMetric from "./CreateMetric";
+import MyMetrics from "./MyMetrics";
 
 const MetricViewTemplate = () => {
   return (
     <div className="space-y-8">
-      <CreateReport />
-      <MyReports />
+      <CreateMetric />
+      <MyMetrics />
     </div>
   );
 };

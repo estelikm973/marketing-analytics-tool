@@ -1,31 +1,24 @@
 "use client";
 
-import { ReportContext } from "@/context/ReportContext";
 import EmptyList from "@/modules/common/EmptyList";
 import { useContext } from "react";
-import TableListItem from "../components/TableListItem";
+import { MetricContext } from "@/context/MetricsContext";
+import DataTable from "@/components/DataTable";
 
 const TableList = () => {
-  const { reportSettings } = useContext(ReportContext);
+  const { tableData, tableLoading } = useContext(MetricContext);
 
   return (
-    <div className="bg-white rounded-md p-8">
-      <div>
-        <h2 className="sr-only">Table List</h2>
-      </div>
-
-      <div className="space-y-12">
-        {!reportSettings.filter((settings) => settings.type === "table")
-          .length ? (
-          <EmptyList />
-        ) : (
-          reportSettings
-            .filter((settings) => settings.type === "table")
-            .map((el) => {
-              return <TableListItem key={el.id} reportSettings={el} />;
-            })
-        )}
-      </div>
+    <div className="bg-white rounded-md p-8 w-full">
+      {!tableLoading && tableData ? (
+        <DataTable
+          tableHead={tableData.tableHead}
+          tableBody={tableData.tableBody}
+          tableFoot={tableData.tableFoot}
+        />
+      ) : (
+        <EmptyList text={tableLoading ? "Loading..." : ""} />
+      )}
     </div>
   );
 };

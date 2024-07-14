@@ -1,3 +1,4 @@
+import { MetricContextProvider } from "@/context/MetricsContext";
 import { ReportContextProvider } from "@/context/ReportContext";
 
 interface IGlobalProviderProps {
@@ -7,5 +8,9 @@ interface IGlobalProviderProps {
 export const GlobalProvider: React.FC<IGlobalProviderProps> = ({
   children,
 }) => {
-  return <ReportContextProvider>{children}</ReportContextProvider>;
+  return (
+    <ReportContextProvider>
+      <MetricContextProvider>{children}</MetricContextProvider>
+    </ReportContextProvider>
+  );
 };

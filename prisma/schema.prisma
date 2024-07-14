@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  // Uses connection pooling
+  url       = env("POSTGRES_PRISMA_URL")
+  // Uses direct connection, ⚠️ make sure to keep this to `POSTGRES_URL_NON_POOLING`
+  // or you'll have dangling databases from migrations
+  directUrl = env("POSTGRES_URL_NON_POOLING")
+}
+
+model User {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  metrics Metric[]
+
+  name  String
+  email String @unique
+  role  String @unique // for authorization
+}
+
+model Metric {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  connections MetricConnection[]
+  user        User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id     String
+
+  name          String
+  show_on_grid  Boolean @default(false)
+  show_on_table Boolean @default(false)
+}
+
+model MetricConnection {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  metric     Metric   @relation(fields: [metric_id], references: [id], onDelete: Cascade)
+  metric_id  String
+
+  source_platform String // Google Analytics, Google Ads, Meta Ads etc.
+  metric_key      String
+}

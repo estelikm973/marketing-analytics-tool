@@ -1,29 +1,24 @@
 "use client";
 
-import { ReportContext } from "@/context/ReportContext";
 import EmptyList from "@/modules/common/EmptyList";
 import { useContext } from "react";
 import GridListItem from "../components/GridListItem";
+import { MetricContext } from "@/context/MetricsContext";
 
 const GridList = () => {
-  const { reportSettings } = useContext(ReportContext);
+  const { gridLoading, gridData } = useContext(MetricContext);
 
   return (
-    <div className="bg-white rounded-md p-8">
-      <div>
-        <h2 className="sr-only">Grid List</h2>
-      </div>
-
+    <div className="bg-white rounded-md p-8 w-full">
       <div className="flex gap-6">
-        {!reportSettings.filter((settings) => settings.type === "grid")
-          .length ? (
-          <EmptyList />
+        {gridLoading ? (
+          <EmptyList text="Loading..." />
+        ) : gridData.length ? (
+          gridData.map((el) => {
+            return <GridListItem key={el.data.yDataKey} gridData={el} />;
+          })
         ) : (
-          reportSettings
-            .filter((settings) => settings.type === "grid")
-            .map((el) => {
-              return <GridListItem key={el.id} reportSettings={el} />;
-            })
+          <EmptyList />
         )}
       </div>
     </div>

@@ -1,25 +1,56 @@
 "use server";
 
 import { analyticsDataClient } from "@/lib/google";
-import { IDimension, IMetric } from "@/lib/types";
+import { IDimension, IGAMetric } from "@/lib/types";
 
 const propertyId = "448983413";
 
-export async function runReport(dimensions: any[], metrics: any[]) {
+export async function runReport(
+  dimensions: any[],
+  metrics: any[],
+  orderBys?: any
+) {
   const res = await analyticsDataClient.runReport({
     property: `properties/${propertyId}`,
     dateRanges: [
       {
-        startDate: "2024-03-31",
-        endDate: "2024-07-06",
+        startDate: "2020-01-01",
+        endDate: "today",
       },
     ],
     dimensions,
     metrics,
     metricAggregations: [1],
+    orderBys,
   });
 
   return res[0];
+}
+
+export async function getGAMetricSum(
+  metric: string,
+  startDate?: string,
+  endDate?: string
+) {
+  const res = await analyticsDataClient.runReport({
+    property: `properties/${propertyId}`,
+    dateRanges: [
+      {
+        startDate: "2020-01-01",
+        endDate: "today",
+      },
+    ],
+    dimensions: [],
+    metrics: [{ name: metric }],
+    metricAggregations: [1],
+  });
+
+  if (res[0].totals?.length) {
+    const values = res[0].totals[0].metricValues;
+    return values && values.length ? values[0].value : "0";
+  }
+
+  return null;
 }
 
 export const getMetaData = async () => {
@@ -37,7 +68,7 @@ export const getMetaData = async () => {
 
 export const getTableData = async (
   dimensions: IDimension[],
-  metrics: IMetric[]
+  metrics: IGAMetric[]
 ) => {
   try {
     const report = await runReport(
@@ -128,14 +159,15 @@ export async function getCompatibleDimensionsAndMetrics(
   }
 }
 
-export const getGridData = async (
+export const getGridGraphData = async (
   dimensions: IDimension[],
-  metrics: IMetric[]
+  metrics: IGAMetric[]
 ) => {
   try {
     const report = await runReport(
       dimensions.map((el) => ({ name: el.apiName })),
-      metrics.map((el) => ({ name: el.apiName }))
+      metrics.map((el) => ({ name: el.apiName })),
+      [{ dimension: { dimensionName: "date" } }]
     );
 
     if (report.rowCount && report.rowCount <= 0) {
@@ -195,10 +227,10 @@ export const getGridData = async (
           row.metricValues[0].value
         ) {
           y = row.metricValues[0].value;
-          metricTotal += isNaN(Number(y)) ? 0 : Number(y);
+          metricTotal += isNaN(Number(y)) ? 0 : getFloatValue(y);
         }
 
-        data.push({ [xDataKey]: x, [yDataKey]: y });
+        data.push({ [xDataKey]: x, [yDataKey]: getFloatValue(y) });
       });
 
     return { data, xDataKey, yDataKey, xLabel, yLabel, metricTotal };
@@ -206,4 +238,8 @@ export const getGridData = async (
     console.error(err || "Server Error");
     return;
   }
+};
+
+const getFloatValue = (s: string) => {
+  return parseFloat(Number(s).toFixed(2));
 };
