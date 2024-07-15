@@ -1,9 +1,10 @@
 import Link from "next/link";
 import { routes } from "@/data/routes";
+import { ProfileButton } from "@/modules/common/ProfileButton";
 
 const SideNav = () => {
   return (
-    <div className="bg-orange-300 min-w-24 min-h-svh py-2 flex flex-col items-center">
+    <div className="bg-orange-300 min-w-24 h-svh py-2 flex flex-col items-center">
       <Link href="/">
         <div className="rounded-full bg-white font-semibold size-20 flex items-center justify-center">
           Logo
@@ -22,6 +23,8 @@ const SideNav = () => {
           );
         })}
       </nav>
+      <div className="flex-1" />
+      <ProfileButton />
     </div>
   );
 };

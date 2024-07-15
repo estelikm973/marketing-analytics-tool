@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import DataSourcesTemplate from "@/modules/dataSources/templates";
 
 export const metadata: Metadata = {
   title: "Data Sources - Marketing Analytics Tool",
@@ -6,9 +7,10 @@ export const metadata: Metadata = {
 
 export default function DataSources() {
   return (
-    <div className="max-w-screen-2xl mx-auto p-16">
-      <main>
-        <h1 className="text-3xl font-medium">Data Sources</h1>
+    <div className="max-w-screen-xl mx-auto">
+      <main className="my-8">
+        <h1 className="text-3xl font-medium mb-8">Data Sources</h1>
+        <DataSourcesTemplate />
       </main>
     </div>
   );
