@@ -64,15 +64,3 @@ export const deleteMetricById = async (id: string) => {
 
   return deletedMetric;
 };
-
-export const createNewUser = async () => {
-  const newUser = await prisma.user.create({
-    data: {
-      name: "estelikm973",
-      email: "estelikm973@gmail.com",
-      role: "admin",
-    },
-  });
-
-  return newUser;
-};
