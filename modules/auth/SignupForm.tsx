@@ -11,18 +11,22 @@ import { Label } from "@/components/ui/label";
 import LoadingButton from "../common/LoadingButton";
 import Link from "next/link";
 
-export function SigninForm() {
+export function SignupForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle className="text-2xl">Login</CardTitle>
+        <CardTitle className="text-2xl">Register</CardTitle>
         <CardDescription>
-          Enter your email below to login to your account.
+          Fill up the form below to create your account.
         </CardDescription>
       </CardHeader>
 
       <CardContent className="grid gap-4">
         <div className="grid gap-2">
+          <div className="grid gap-2">
+            <Label htmlFor="name">Name</Label>
+            <Input id="name" name="name" type="text" required />
+          </div>
           <Label htmlFor="email">Email</Label>
           <Input
             id="email"
@@ -38,10 +42,13 @@ export function SigninForm() {
         </div>
       </CardContent>
       <CardFooter className="flex flex-col">
-        <LoadingButton defaultText="Sign in" loadingText="Signing in..." />
+        <LoadingButton
+          defaultText="Create Account"
+          loadingText="Creating account..."
+        />
         <div className="text-sm text-center text-gray-500 mt-4">
-          Don&apos;t have an account?&nbsp;
-          <Link href="/signup">Register here.</Link>
+          Already have an account?&nbsp;
+          <Link href="/signin">Sign up.</Link>
         </div>
       </CardFooter>
     </Card>

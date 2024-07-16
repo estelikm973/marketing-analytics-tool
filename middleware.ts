@@ -10,11 +10,16 @@ export default async function middleware(req: NextRequest) {
   const cookie = cookies().get(cookieKeys.SESSION)?.value;
   const session = await decrypt(cookie);
 
+  const unAuthPaths = ["/signin", "/signup"];
+
   // Redirect to /login if the user is not authenticated
-  if (!session?.userId && path !== "/signin") {
+  if (!session?.userId && !unAuthPaths.includes(path)) {
     const newUrl = new URL("/signin", req.nextUrl.origin);
     return Response.redirect(newUrl);
-  } else if (path.startsWith("/signin") && !!session?.userId) {
+  } else if (
+    unAuthPaths.some((el) => path.startsWith(el)) &&
+    !!session?.userId
+  ) {
     return NextResponse.redirect(new URL("/", req.nextUrl));
   }
 
