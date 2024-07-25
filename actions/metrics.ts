@@ -1,8 +1,9 @@
 "use server";
 
 import prisma from "@/lib/prisma";
+import { MetricType } from "@/lib/types";
 
-const userId = "fb196cd2-01ba-4b16-a15c-d1b4a1122466";
+const userId = "18ca62fb-ede7-4a2d-b687-366d1c8c15df";
 
 export const getMyMetrics = async () => {
   const myMetrics = await prisma.metric.findMany({
@@ -20,14 +21,30 @@ export const createMetric = async (data: {
   show_on_table: boolean;
   source_platform?: string;
   metric_key?: string;
+  metric_type: MetricType;
+  content?: { [key: string]: any };
 }) => {
-  const { name, show_on_grid, show_on_table, metric_key, source_platform } =
-    data;
+  const {
+    name,
+    show_on_grid,
+    show_on_table,
+    metric_type,
+    metric_key,
+    source_platform,
+    content = {},
+  } = data;
 
   if (!name) return;
 
   const newMetric = await prisma.metric.create({
-    data: { user_id: userId, name, show_on_grid, show_on_table },
+    data: {
+      user_id: userId,
+      name,
+      show_on_grid,
+      data: content,
+      metric_type,
+      show_on_table,
+    },
   });
 
   if (source_platform && metric_key) {
@@ -47,7 +64,7 @@ export const updateMetricById = async (
   data: {
     show_on_table?: boolean;
     show_on_grid?: boolean;
-  }
+  },
 ) => {
   const { show_on_grid, show_on_table } = data;
 

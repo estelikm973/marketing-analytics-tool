@@ -8,6 +8,8 @@ import { createMetric } from "@/actions/metrics";
 import SelectPlatform from "../components/SelectPlatform";
 import SelectGAMetric from "../components/SelectGAMetric";
 import { MetricContext } from "@/context/MetricsContext";
+import SelectManualMetric from "../components/SelectManualMetric";
+import { MetricType } from "@/lib/types";
 
 const CreateMetric = () => {
   const { fetchMyMetrics } = useContext(MetricContext);
@@ -28,6 +30,7 @@ const CreateMetric = () => {
       show_on_table: showOnTable,
       source_platform: platformName,
       metric_key: metricKey,
+      metric_type: MetricType.Custom,
     });
 
     setLoading(false);
@@ -103,6 +106,16 @@ const CreateMetric = () => {
               />
             </div>
           )}
+
+          {platformName === "manual" && (
+            <div>
+              <SelectManualMetric
+                metricKey={metricKey}
+                setMetricKey={setMetricKey}
+              />
+            </div>
+          )}
+
           <div>
             <Button disabled={loading} className="px-8" onClick={handleCreate}>
               Create

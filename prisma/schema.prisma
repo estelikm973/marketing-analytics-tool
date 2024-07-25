@@ -32,10 +32,18 @@ model Metric {
   connections MetricConnection[]
   user        User               @relation(fields: [user_id], references: [id], onDelete: Cascade)
   user_id     String
+  metric_type MetricType
+  data        Json
 
   name          String
   show_on_grid  Boolean @default(false)
   show_on_table Boolean @default(false)
+}
+
+enum MetricType {
+  manual
+  imported
+  custom
 }
 
 model MetricConnection {

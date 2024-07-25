@@ -47,3 +47,9 @@ export interface IGridItem {
     metricTotal: number;
   };
 }
+
+export enum MetricType {
+  Custom = "custom",
+  Imported = "imported",
+  Manual = "manual",
+}
