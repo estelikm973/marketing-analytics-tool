@@ -23,7 +23,7 @@ const CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
 
 export const createAnalyticsDataClient = (access_token: string) => {
-  const authClient = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET);
+  const authClient: any = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET);
 
   authClient.setCredentials({ access_token });
 
