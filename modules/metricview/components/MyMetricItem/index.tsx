@@ -65,7 +65,7 @@ const MyMetricItem: FC<IMyMetricItemProps> = ({ metric }) => {
       </div>
       <div className="flex justify-between items-center">
         <div className="text-xs text-gray-600">
-          Connections: {connections.length || 0}
+          Connections: {connections?.length || 0}
         </div>
         <Button
           onClick={() => openAddMetricsConnectionDialog(metric)}
