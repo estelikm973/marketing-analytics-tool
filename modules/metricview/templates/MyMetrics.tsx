@@ -13,7 +13,7 @@ const MyMetrics = () => {
       <h2 className="text-xl font-medium mb-4">My Metrics</h2>
       <div className="flex gap-4 flex-wrap">
         {!myMetrics.length ? (
-          <div className="col-span-4">
+          <div className="flex-grow">
             <EmptyList />
           </div>
         ) : (

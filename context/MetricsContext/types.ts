@@ -1,3 +1,4 @@
+import { Dispatch } from "react";
 import { IDataTableProps } from "@/components/DataTable";
 import { IGridItem, IMetric } from "@/lib/types";
 
@@ -21,4 +22,5 @@ export interface IMetricContext {
     }
   ) => Promise<void>;
   deleteMetric: (id: string) => Promise<void>;
+  openAddMetricsConnectionDialog: (metric: IMetric) => void;
 }

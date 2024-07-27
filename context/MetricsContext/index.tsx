@@ -11,6 +11,13 @@ import {
 import { getTableData } from "@/actions/table";
 import { IDataTableProps } from "@/components/DataTable";
 import { getGridData } from "@/actions/grid";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import AddMetricConnectionForm from "@/modules/metricview/components/AddMetricConnectionForm";
 
 export const MetricContext = createContext<IMetricContext>(
   {} as IMetricContext
@@ -25,6 +32,10 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
   const [gridLoading, setGridLoading] = useState<boolean>(false);
   const [tableLoading, setTableLoading] = useState<boolean>(false);
   const [metricsLoading, setMetricsLoading] = useState<boolean>(false);
+  const [addMetricsConnectionDialogOpen, setAddMetricsConnectionDialogOpen] =
+    useState<boolean>(false);
+
+  const [selectedMetric, setSelectedMetric] = useState<IMetric>();
 
   const fetchMyMetrics = useCallback(async () => {
     setMetricsLoading(true);
@@ -84,6 +95,16 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
     fetchMyMetrics();
   };
 
+  const openAddMetricsConnectionDialog = (selectedMetric: IMetric) => {
+    setSelectedMetric(selectedMetric);
+    setAddMetricsConnectionDialogOpen(true);
+  };
+
+  const closeDialog = () => {
+    setSelectedMetric(undefined);
+    setAddMetricsConnectionDialogOpen(false);
+  };
+
   useEffect(() => {
     fetchMyMetrics();
   }, [fetchMyMetrics]);
@@ -100,9 +121,24 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
         metricsLoading,
         deleteMetric,
         updateMetric,
+        openAddMetricsConnectionDialog,
       }}
     >
       {children}
+      <Dialog
+        open={selectedMetric && addMetricsConnectionDialogOpen}
+        onOpenChange={(val) => setAddMetricsConnectionDialogOpen(val)}
+      >
+        <DialogContent className="sm:max-w-[425px]">
+          <DialogHeader>
+            <DialogTitle>{selectedMetric?.name}</DialogTitle>
+          </DialogHeader>
+          <AddMetricConnectionForm
+            metric_id={selectedMetric?.id || ""}
+            closeDialog={closeDialog}
+          />
+        </DialogContent>
+      </Dialog>
     </MetricContext.Provider>
   );
 };

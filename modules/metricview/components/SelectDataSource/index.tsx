@@ -1,13 +1,6 @@
 "use client";
 
-import {
-  Dispatch,
-  FC,
-  SetStateAction,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
 import { Check, ChevronsUpDown, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,41 +17,39 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { IGAMetric } from "@/lib/types";
-import { getCompatibleDimensionsAndMetrics } from "@/actions/analytics";
+import { IDataSourceConnection } from "@/lib/types";
+import { getMyDataSourceConnections } from "@/actions/datasource";
 
-interface ISelectGAMetricProps {
-  metricKey: string;
-  setMetricKey: Dispatch<SetStateAction<string>>;
+interface ISelectDataSourceProps {
+  dataSourceKey: string;
+  setDataSourceKey: Dispatch<SetStateAction<string>>;
 }
 
-const SelectGAMetric: FC<ISelectGAMetricProps> = ({
-  metricKey,
-  setMetricKey,
+const SelectDataSource: FC<ISelectDataSourceProps> = ({
+  dataSourceKey,
+  setDataSourceKey,
 }) => {
+  const [myConnections, setMyConnections] = useState<IDataSourceConnection[]>(
+    []
+  );
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [gaMetrics, setGAMetrics] = useState<IGAMetric[]>([]);
 
-  const getMetrics = useCallback(async () => {
+  const fetchDataSources = async () => {
     setLoading(true);
-    const res = await getCompatibleDimensionsAndMetrics(["date"], []);
-    const metrics = res?.[0].metricCompatibilities;
-    if (metrics?.length) {
-      setGAMetrics(
-        metrics.map((el) => ({
-          apiName: el.metricMetadata?.apiName,
-          uiName: el.metricMetadata?.uiName,
-        })) || []
-      );
+
+    const res = await getMyDataSourceConnections();
+
+    if (res) {
+      setMyConnections(res);
     }
 
     setLoading(false);
-  }, []);
+  };
 
   useEffect(() => {
-    getMetrics();
-  }, [getMetrics]);
+    fetchDataSources();
+  }, []);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -69,9 +60,8 @@ const SelectGAMetric: FC<ISelectGAMetricProps> = ({
           aria-expanded={open}
           className="justify-between w-full"
         >
-          {metricKey
-            ? gaMetrics.find((metric) => metric.apiName === metricKey)?.uiName
-            : "Select Metric"}
+          {myConnections?.find((el) => el.data_source_key === dataSourceKey)
+            ?.data_source.name || "Select Platform"}
           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
         </Button>
       </PopoverTrigger>
@@ -87,25 +77,25 @@ const SelectGAMetric: FC<ISelectGAMetricProps> = ({
               <>
                 <CommandEmpty>No results found.</CommandEmpty>
                 <CommandGroup>
-                  {gaMetrics.length > 0 &&
-                    gaMetrics.map((metric) => (
+                  {myConnections.length > 0 &&
+                    myConnections.map((el) => (
                       <CommandItem
-                        key={metric.apiName}
-                        value={metric.uiName || ""}
+                        key={el.id}
+                        value={el.data_source.name || ""}
                         onSelect={(_currentValue) => {
                           setOpen(false);
-                          setMetricKey(metric.apiName || "");
+                          setDataSourceKey(el.data_source_key);
                         }}
                       >
                         <Check
                           className={cn(
                             "mr-2 h-4 w-4",
-                            metric.apiName === metricKey
+                            el.data_source_key === dataSourceKey
                               ? "opacity-100"
                               : "opacity-0"
                           )}
                         />
-                        {metric.uiName}
+                        {el.data_source.name || "-"}
                       </CommandItem>
                     ))}
                 </CommandGroup>
@@ -118,4 +108,4 @@ const SelectGAMetric: FC<ISelectGAMetricProps> = ({
   );
 };
 
-export default SelectGAMetric;
+export default SelectDataSource;
