@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { MetricContext } from "@/context/MetricsContext";
 import { IMetric } from "@/lib/types";
-import { Trash2 } from "lucide-react";
+import { CirclePlusIcon, Trash2 } from "lucide-react";
 import { FC, useContext } from "react";
 
 interface IMyMetricItemProps {
@@ -13,8 +13,12 @@ interface IMyMetricItemProps {
 
 const MyMetricItem: FC<IMyMetricItemProps> = ({ metric }) => {
   const { name, show_on_grid, show_on_table, connections, id } = metric;
-  const { deleteMetric, metricsLoading, updateMetric } =
-    useContext(MetricContext);
+  const {
+    deleteMetric,
+    metricsLoading,
+    updateMetric,
+    openAddMetricsConnectionDialog,
+  } = useContext(MetricContext);
 
   return (
     <div className="border rounded-md shadow-md p-4 col-span-1 flex flex-col gap-5">
@@ -59,9 +63,18 @@ const MyMetricItem: FC<IMyMetricItemProps> = ({ metric }) => {
           </div>
         </div>
       </div>
-
-      <div className="text-xs text-gray-600">
-        Connections: {connections.length || 0}
+      <div className="flex justify-between items-center">
+        <div className="text-xs text-gray-600">
+          Connections: {connections?.length || 0}
+        </div>
+        <Button
+          onClick={() => openAddMetricsConnectionDialog(metric)}
+          className="rounded-full text-gray-600 size-6"
+          variant="ghost"
+          size="icon"
+        >
+          <CirclePlusIcon className="size-4" />
+        </Button>
       </div>
     </div>
   );

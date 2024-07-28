@@ -2,6 +2,7 @@
 
 import prisma from "@/lib/prisma";
 import { getGAMetricSum } from "./analytics";
+import { getUserId } from "./auth";
 
 const userId = "fb196cd2-01ba-4b16-a15c-d1b4a1122466";
 
@@ -12,30 +13,34 @@ export const getTableData = async () => {
 
   const googleAnalyticsRow = ["Google Analytics"];
 
-  const tableMetrics = await prisma.metric.findMany({
-    where: { user_id: userId, show_on_table: true },
-    include: { connections: true },
-  });
+  const userId = await getUserId();
 
-  for (let i = 0; i < tableMetrics.length; i++) {
-    const metric = tableMetrics[i];
-    let val = "N/A";
+  if (!userId) return;
 
-    tableHead.push(metric.name);
+  // const tableMetrics = await prisma.metric.findMany({
+  //   where: { user_id: userId, show_on_table: true },
+  //   include: { connections: true },
+  // });
 
-    const metricGAConnection = metric.connections.find(
-      (connection) => connection.source_platform === "google-analytics"
-    );
+  // for (let i = 0; i < tableMetrics.length; i++) {
+  //   const metric = tableMetrics[i];
+  //   let val = "N/A";
 
-    if (metricGAConnection) {
-      const sum = await getGAMetricSum(metricGAConnection.metric_key);
+  //   tableHead.push(metric.name);
 
-      val = sum || "N/A";
-    }
+  //   const metricGAConnection = metric.connections.find(
+  //     (connection) => connection.source_platform === "google-analytics"
+  //   );
 
-    googleAnalyticsRow.push(val);
-    tableFoot.push(val);
-  }
+  //   if (metricGAConnection) {
+  //     const sum = await getGAMetricSum(metricGAConnection.metric_key);
+
+  //     val = sum || "N/A";
+  //   }
+
+  //   googleAnalyticsRow.push(val);
+  //   tableFoot.push(val);
+  // }
 
   tableBody.push(googleAnalyticsRow);
 

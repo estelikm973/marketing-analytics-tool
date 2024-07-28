@@ -16,7 +16,8 @@ model User {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  metrics Metric[]
+  metrics                 Metric[]
+  data_source_connections DataSourceConnection[]
 
   name     String
   email    String @unique
@@ -42,9 +43,60 @@ model MetricConnection {
   id         String   @id @default(uuid())
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
-  metric     Metric   @relation(fields: [metric_id], references: [id], onDelete: Cascade)
-  metric_id  String
 
-  source_platform String // Google Analytics, Google Ads, Meta Ads etc.
-  metric_key      String
+  metric    Metric @relation(fields: [metric_id], references: [id], onDelete: Cascade)
+  metric_id String
+
+  //for manual entry
+  manual_entry ManualEntry?
+
+  // for imported data
+  data_source_connection    DataSourceConnection? @relation(fields: [data_source_connection_id], references: [id])
+  data_source_connection_id String?
+  metric_key                String?
+}
+
+model DataSource {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  connections DataSourceConnection[]
+
+  name   String
+  key    String  @unique
+  hidden Boolean @default(true)
+}
+
+model DataSourceConnection {
+  id                 String             @id @default(uuid())
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  metric_connections MetricConnection[]
+
+  user            User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id         String
+  data_source     DataSource @relation(fields: [data_source_key], references: [key])
+  data_source_key String
+
+  access_token  String?
+  expiry_date   BigInt?
+  id_token      String?
+  refresh_token String?
+  scope         String?
+  token_type    String?
+}
+
+model ManualEntry {
+  id         String   @id @default(uuid())
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+
+  metric_connection    MetricConnection @relation(fields: [metric_connection_id], references: [id])
+  metric_connection_id String           @unique
+
+  value     BigInt
+  format    String   @default("")
+  date_from DateTime
+  date_to   DateTime
 }
