@@ -10,7 +10,7 @@ export async function encrypt(payload: JWTPayload) {
   return new SignJWT(payload)
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
-    .setExpirationTime("7d")
+    .setExpirationTime("1d")
     .sign(encodedKey);
 }
 
@@ -33,7 +33,7 @@ export async function createSession(userId: string) {
     httpOnly: true,
     secure: true,
     expires: new Date(expiresAt),
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
   });
 }
@@ -51,7 +51,7 @@ export async function updateSession() {
     httpOnly: true,
     secure: true,
     expires: expires,
-    sameSite: "lax",
+    sameSite: "strict",
     path: "/",
   });
 }

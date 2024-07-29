@@ -1,5 +1,9 @@
 "use client";
 
+import { FC, useEffect, useState } from "react";
+import { CalendarIcon, Loader2 } from "lucide-react";
+import { DateRange } from "react-day-picker";
+import dayjs from "dayjs";
 import { Button } from "@/components/ui/button";
 import { Calendar } from "@/components/ui/calendar";
 import { Input } from "@/components/ui/input";
@@ -9,11 +13,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { CalendarIcon, Loader2 } from "lucide-react";
-import { FC, useState } from "react";
-import dayjs from "dayjs";
 import { cn } from "@/lib/utils";
-import { DateRange } from "react-day-picker";
 import {
   Select,
   SelectContent,
@@ -22,33 +22,36 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { addManualEntry } from "@/actions/metrics";
+import { saveManualEntry } from "@/actions/metrics";
+import { IMetric } from "@/lib/types";
 
 interface ICreateManualEntryFormProps {
-  metric_id: string;
+  metric: IMetric;
   closeDialog: () => void;
 }
 
 const CreateManualEntryForm: FC<ICreateManualEntryFormProps> = ({
-  metric_id,
+  metric,
   closeDialog,
 }) => {
   const [date, setDate] = useState<DateRange | undefined>();
   const [value, setValue] = useState(0);
   const [format, setFormat] = useState("");
   const [loading, setLoading] = useState(false);
+  const [manualEntryId, setManualEntryId] = useState("");
 
   const handleSubmit = async () => {
-    if (!metric_id || !value || !format || !date?.from || !date?.to) return;
+    if (!metric.id || !value || !format || !date?.from || !date?.to) return;
 
     setLoading(true);
 
-    const res = await addManualEntry(
-      metric_id,
+    const res = await saveManualEntry(
+      metric.id,
       value,
       format,
       date?.from,
-      date?.to
+      date?.to,
+      manualEntryId
     );
 
     setLoading(false);
@@ -57,6 +60,19 @@ const CreateManualEntryForm: FC<ICreateManualEntryFormProps> = ({
       closeDialog();
     }
   };
+
+  useEffect(() => {
+    const manualEntry = metric.connections?.find(
+      (connection) => !!connection.manual_entry
+    )?.manual_entry;
+
+    if (manualEntry) {
+      setDate({ from: manualEntry.date_from, to: manualEntry.date_to });
+      setValue(Number(manualEntry.value));
+      setFormat(manualEntry.format);
+      setManualEntryId(manualEntry.id);
+    }
+  }, [metric]);
 
   return (
     <div className="space-y-4 py-4">

@@ -2,11 +2,14 @@
 
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import dayjs from "dayjs";
 import bcrypt from "bcryptjs";
 import prisma from "@/lib/prisma";
 import { createSession, decrypt, deleteSession } from "@/lib/session";
 import { cookieKeys } from "@/lib/keys";
 import { ActionStatus } from "@/lib/status";
+import { DataSourceKeys } from "@/data/platforms";
+import { refreshAccessToken } from "@/lib/refreshToken";
 
 export async function signin(email: string, password: string) {
   try {
@@ -81,3 +84,72 @@ export async function getUserId() {
 
   return undefined;
 }
+
+export async function getGoogleAnalyticsAccessToken() {
+  const gaAccessToken = cookies().get(
+    cookieKeys.GOOGLE_ANALYTICS_ACCESS_TOKEN
+  )?.value;
+
+  if (gaAccessToken) return gaAccessToken;
+
+  const userId = await getUserId();
+
+  if (!userId) return;
+
+  const googleAnalyticsConnection = await prisma.dataSourceConnection.findFirst(
+    {
+      where: {
+        user_id: userId,
+        data_source_key: DataSourceKeys.GOOGLE_ANALYTICS,
+      },
+    }
+  );
+
+  if (!googleAnalyticsConnection || !googleAnalyticsConnection.refresh_token)
+    return;
+
+  if (
+    googleAnalyticsConnection.access_token &&
+    googleAnalyticsConnection.expiry_date &&
+    Number(googleAnalyticsConnection.expiry_date) > dayjs(new Date()).valueOf()
+  ) {
+    setGATokenCookies(
+      googleAnalyticsConnection.access_token,
+      Number(googleAnalyticsConnection.expiry_date)
+    );
+
+    return googleAnalyticsConnection.access_token;
+  }
+
+  const credentials = await refreshAccessToken(
+    googleAnalyticsConnection.refresh_token
+  );
+
+  if (!credentials.access_token || !credentials.expiry_date) return;
+
+  await prisma.dataSourceConnection.update({
+    where: { id: googleAnalyticsConnection.id },
+    data: {
+      access_token: credentials.access_token,
+      expiry_date: credentials.expiry_date,
+      refresh_token: credentials.refresh_token,
+      id_token: credentials.id_token,
+      scope: credentials.scope,
+      token_type: credentials.token_type,
+    },
+  });
+
+  setGATokenCookies(credentials.access_token, credentials.expiry_date);
+
+  return credentials.access_token;
+}
+
+const setGATokenCookies = (access_token: string, expiry_date: number) => {
+  cookies().set(cookieKeys.GOOGLE_ANALYTICS_ACCESS_TOKEN, access_token, {
+    httpOnly: true,
+    secure: true,
+    expires: new Date(expiry_date),
+    sameSite: "strict",
+    path: "/",
+  });
+};

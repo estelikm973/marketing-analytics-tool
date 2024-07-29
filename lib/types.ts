@@ -38,11 +38,11 @@ interface IMetricConnection {
   metric?: IMetric | null;
   metric_id: string;
 
-  manual_entry?: any;
+  manual_entry?: IManualEntry | null;
 
-  data_source_connection?: any;
-  data_source_connection_id?: String | null;
-  metric_key?: String | null;
+  data_source_connection?: IDataSourceConnection | null;
+  data_source_connection_id: string | null;
+  metric_key: string | null;
 }
 
 export interface IGridItem {
@@ -71,10 +71,11 @@ export interface IDataSourceConnection {
   id: string;
   created_at: Date;
   updated_at: Date;
-  metric_connections?: any[];
+  metric_connections?: IMetricConnection[];
+
   user?: any;
   user_id: string;
-  data_source: IDataSource;
+  data_source?: any;
   data_source_key: string;
 
   access_token: string | null;
@@ -83,4 +84,18 @@ export interface IDataSourceConnection {
   refresh_token: string | null;
   scope: string | null;
   token_type: string | null;
+}
+
+interface IManualEntry {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+
+  metric_connection?: IMetricConnection | null;
+  metric_connection_id: string;
+
+  value: bigint;
+  format: string;
+  date_from: Date;
+  date_to: Date;
 }

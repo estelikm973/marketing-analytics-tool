@@ -49,8 +49,8 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
     }
     setMetricsLoading(false);
 
-    fetchTableData();
-    fetchGridData();
+    fetchTableData().finally(() => setTableLoading(false));
+    fetchGridData().finally(() => setGridLoading(false));
   }, []);
 
   const fetchTableData = async () => {
@@ -59,8 +59,6 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
     if (res) {
       setTableData(res);
     }
-
-    setTableLoading(false);
   };
 
   const fetchGridData = async () => {
@@ -69,8 +67,6 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
     if (res) {
       setGridData(res);
     }
-
-    setGridLoading(false);
   };
 
   const updateMetric = async (
@@ -125,20 +121,22 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
       }}
     >
       {children}
-      <Dialog
-        open={selectedMetric && addMetricsConnectionDialogOpen}
-        onOpenChange={(val) => setAddMetricsConnectionDialogOpen(val)}
-      >
-        <DialogContent className="sm:max-w-[425px]">
-          <DialogHeader>
-            <DialogTitle>{selectedMetric?.name}</DialogTitle>
-          </DialogHeader>
-          <AddMetricConnectionForm
-            metric_id={selectedMetric?.id || ""}
-            closeDialog={closeDialog}
-          />
-        </DialogContent>
-      </Dialog>
+      {selectedMetric && (
+        <Dialog
+          open={addMetricsConnectionDialogOpen}
+          onOpenChange={(val) => setAddMetricsConnectionDialogOpen(val)}
+        >
+          <DialogContent className="sm:max-w-[425px]">
+            <DialogHeader>
+              <DialogTitle>{selectedMetric.name}</DialogTitle>
+            </DialogHeader>
+            <AddMetricConnectionForm
+              metric={selectedMetric}
+              closeDialog={closeDialog}
+            />
+          </DialogContent>
+        </Dialog>
+      )}
     </MetricContext.Provider>
   );
 };

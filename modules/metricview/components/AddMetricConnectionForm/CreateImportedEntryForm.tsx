@@ -1,19 +1,21 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Loader2 } from "lucide-react";
 import { FC, useState } from "react";
+import { Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { addImportedConnection } from "@/actions/metrics";
 import SelectGAMetric from "../SelectGAMetric";
 import SelectDataSource from "../SelectDataSource";
+import { DataSourceKeys } from "@/data/platforms";
+import { IMetric } from "@/lib/types";
 
 interface ICreateImportedEntryFormProps {
-  metric_id: string;
+  metric: IMetric;
   closeDialog: () => void;
 }
 
 const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
-  metric_id,
+  metric,
   closeDialog,
 }) => {
   const [metricKey, setMetricKey] = useState("");
@@ -21,12 +23,12 @@ const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
   const [dataSourceKey, setDataSourceKey] = useState("");
 
   const handleSubmit = async () => {
-    if (!metric_id || !metricKey || !dataSourceKey) return;
+    if (!metric.id || !metricKey || !dataSourceKey) return;
 
     setLoading(true);
 
     const res = await addImportedConnection(
-      metric_id,
+      metric.id,
       metricKey,
       dataSourceKey
     );
@@ -46,7 +48,7 @@ const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
           setDataSourceKey={setDataSourceKey}
         />
       </div>
-      {dataSourceKey === "google-analytics" && (
+      {dataSourceKey === DataSourceKeys.GOOGLE_ANALYTICS && (
         <div className="grid gap-2">
           <SelectGAMetric metricKey={metricKey} setMetricKey={setMetricKey} />
         </div>

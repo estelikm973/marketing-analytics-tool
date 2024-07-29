@@ -92,7 +92,7 @@ model ManualEntry {
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  metric_connection    MetricConnection @relation(fields: [metric_connection_id], references: [id])
+  metric_connection    MetricConnection @relation(fields: [metric_connection_id], references: [id], onDelete: Cascade)
   metric_connection_id String           @unique
 
   value     BigInt

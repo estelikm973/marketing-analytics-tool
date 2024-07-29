@@ -10,7 +10,7 @@ export const getMyMetrics = async () => {
   if (!userId) return;
   const myMetrics: IMetric[] = await prisma.metric.findMany({
     where: { user_id: userId },
-    include: { connections: true },
+    include: { connections: { include: { manual_entry: true } } },
     orderBy: { created_at: "desc" },
   });
 
@@ -54,14 +54,29 @@ export const deleteMetricById = async (id: string) => {
   return deletedMetric;
 };
 
-export const addManualEntry = async (
+export const saveManualEntry = async (
   metricId: string,
   value: number,
   format: string,
   dateFrom: Date,
-  dateTo: Date
+  dateTo: Date,
+  entryId?: string
 ) => {
   if (!metricId || !value || !format || !dateFrom || !dateTo) return null;
+
+  if (entryId) {
+    const existingEntry = await prisma.manualEntry.findUnique({
+      where: { id: entryId },
+    });
+
+    if (existingEntry) {
+      const updatedEntry = await prisma.manualEntry.update({
+        where: { id: existingEntry.id },
+        data: { value, format, date_from: dateFrom, date_to: dateTo },
+      });
+      return updatedEntry;
+    }
+  }
 
   const metric = await prisma.metric.findUnique({ where: { id: metricId } });
 

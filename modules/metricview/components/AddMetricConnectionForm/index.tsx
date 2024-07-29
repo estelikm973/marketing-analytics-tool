@@ -1,8 +1,8 @@
-import { FC, useState } from "react";
-import SelectDataSource from "../SelectDataSource";
+import { FC } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import CreateManualEntryForm from "./CreateManualEntryForm";
 import CreateImportedEntryForm from "./CreateImportedEntryForm";
+import { IMetric } from "@/lib/types";
 
 enum TabItem {
   MANUAL = "manual",
@@ -11,16 +11,14 @@ enum TabItem {
 }
 
 interface IAddMetricConnectionFormProps {
-  metric_id: string;
+  metric: IMetric;
   closeDialog: () => void;
 }
 
 const AddMetricConnectionForm: FC<IAddMetricConnectionFormProps> = ({
-  metric_id,
+  metric,
   closeDialog,
 }) => {
-  const [dataSourceKey, setDataSourceKey] = useState("");
-
   return (
     <Tabs defaultValue={TabItem.MANUAL} className="w-full relative">
       <TabsList className="grid w-full grid-cols-3">
@@ -31,16 +29,10 @@ const AddMetricConnectionForm: FC<IAddMetricConnectionFormProps> = ({
         </TabsTrigger>
       </TabsList>
       <TabsContent value={TabItem.MANUAL}>
-        <CreateManualEntryForm
-          metric_id={metric_id}
-          closeDialog={closeDialog}
-        />
+        <CreateManualEntryForm metric={metric} closeDialog={closeDialog} />
       </TabsContent>
       <TabsContent value={TabItem.IMPORTED}>
-        <CreateImportedEntryForm
-          metric_id={metric_id}
-          closeDialog={closeDialog}
-        />
+        <CreateImportedEntryForm metric={metric} closeDialog={closeDialog} />
       </TabsContent>
     </Tabs>
   );
