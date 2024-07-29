@@ -12,12 +12,10 @@ enum TabItem {
 
 interface IAddMetricConnectionFormProps {
   metric: IMetric;
-  closeDialog: () => void;
 }
 
 const AddMetricConnectionForm: FC<IAddMetricConnectionFormProps> = ({
   metric,
-  closeDialog,
 }) => {
   return (
     <Tabs defaultValue={TabItem.MANUAL} className="w-full relative">
@@ -29,10 +27,10 @@ const AddMetricConnectionForm: FC<IAddMetricConnectionFormProps> = ({
         </TabsTrigger>
       </TabsList>
       <TabsContent value={TabItem.MANUAL}>
-        <CreateManualEntryForm metric={metric} closeDialog={closeDialog} />
+        <CreateManualEntryForm metric={metric} />
       </TabsContent>
       <TabsContent value={TabItem.IMPORTED}>
-        <CreateImportedEntryForm metric={metric} closeDialog={closeDialog} />
+        <CreateImportedEntryForm metric={metric} />
       </TabsContent>
     </Tabs>
   );

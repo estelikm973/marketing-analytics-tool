@@ -1,6 +1,6 @@
 "use client";
 
-import { FC, useEffect, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { DateRange } from "react-day-picker";
 import dayjs from "dayjs";
@@ -24,16 +24,15 @@ import {
 } from "@/components/ui/select";
 import { saveManualEntry } from "@/actions/metrics";
 import { IMetric } from "@/lib/types";
+import { MetricContext } from "@/context/MetricsContext";
 
 interface ICreateManualEntryFormProps {
   metric: IMetric;
-  closeDialog: () => void;
 }
 
-const CreateManualEntryForm: FC<ICreateManualEntryFormProps> = ({
-  metric,
-  closeDialog,
-}) => {
+const CreateManualEntryForm: FC<ICreateManualEntryFormProps> = ({ metric }) => {
+  const { closeDialog, fetchMyMetrics } = useContext(MetricContext);
+
   const [date, setDate] = useState<DateRange | undefined>();
   const [value, setValue] = useState(0);
   const [format, setFormat] = useState("");
@@ -58,6 +57,7 @@ const CreateManualEntryForm: FC<ICreateManualEntryFormProps> = ({
 
     if (res?.id) {
       closeDialog();
+      fetchMyMetrics();
     }
   };
 

@@ -1,44 +1,67 @@
 "use client";
 
-import { FC, useState } from "react";
+import { FC, useContext, useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { addImportedConnection } from "@/actions/metrics";
+import { saveImportedConnection } from "@/actions/metrics";
 import SelectGAMetric from "../SelectGAMetric";
 import SelectDataSource from "../SelectDataSource";
 import { DataSourceKeys } from "@/data/platforms";
 import { IMetric } from "@/lib/types";
+import { MetricContext } from "@/context/MetricsContext";
 
 interface ICreateImportedEntryFormProps {
   metric: IMetric;
-  closeDialog: () => void;
 }
 
 const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
   metric,
-  closeDialog,
 }) => {
+  const { closeDialog, fetchMyMetrics } = useContext(MetricContext);
+
   const [metricKey, setMetricKey] = useState("");
   const [loading, setLoading] = useState(false);
   const [dataSourceKey, setDataSourceKey] = useState("");
+  const [gAMetricConnectionId, setGAMetricConnectionId] = useState("");
+  const [defaultMetricKey, setDefaultMetricKey] = useState("");
 
   const handleSubmit = async () => {
     if (!metric.id || !metricKey || !dataSourceKey) return;
 
     setLoading(true);
 
-    const res = await addImportedConnection(
+    const res = await saveImportedConnection(
       metric.id,
       metricKey,
-      dataSourceKey
+      dataSourceKey,
+      gAMetricConnectionId
     );
 
     setLoading(false);
 
     if (res?.id) {
       closeDialog();
+      fetchMyMetrics();
     }
   };
+
+  useEffect(() => {
+    if (dataSourceKey === DataSourceKeys.GOOGLE_ANALYTICS) {
+      const googleAnalyticsConnection = metric.connections?.find(
+        (connection) =>
+          connection.data_source_connection?.data_source_key ===
+          DataSourceKeys.GOOGLE_ANALYTICS
+      );
+      console.log({ googleAnalyticsConnection });
+      if (googleAnalyticsConnection) {
+        setGAMetricConnectionId(googleAnalyticsConnection.id);
+        setDefaultMetricKey(googleAnalyticsConnection.metric_key || "");
+      }
+    } else {
+      setGAMetricConnectionId("");
+      setDefaultMetricKey("");
+    }
+  }, [metric, dataSourceKey]);
 
   return (
     <div className="space-y-4 py-4">
@@ -50,7 +73,11 @@ const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
       </div>
       {dataSourceKey === DataSourceKeys.GOOGLE_ANALYTICS && (
         <div className="grid gap-2">
-          <SelectGAMetric metricKey={metricKey} setMetricKey={setMetricKey} />
+          <SelectGAMetric
+            metricKey={metricKey}
+            setMetricKey={setMetricKey}
+            defaultMetricKey={defaultMetricKey}
+          />
         </div>
       )}
       <Button disabled={loading} type="button" onClick={handleSubmit}>

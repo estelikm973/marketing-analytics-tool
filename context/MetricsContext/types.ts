@@ -23,4 +23,5 @@ export interface IMetricContext {
   ) => Promise<void>;
   deleteMetric: (id: string) => Promise<void>;
   openAddMetricsConnectionDialog: (metric: IMetric) => void;
+  closeDialog: () => void;
 }

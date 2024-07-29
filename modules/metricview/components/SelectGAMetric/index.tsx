@@ -30,11 +30,13 @@ import { getCompatibleDimensionsAndMetrics } from "@/actions/analytics";
 interface ISelectGAMetricProps {
   metricKey: string;
   setMetricKey: Dispatch<SetStateAction<string>>;
+  defaultMetricKey: string;
 }
 
 const SelectGAMetric: FC<ISelectGAMetricProps> = ({
   metricKey,
   setMetricKey,
+  defaultMetricKey,
 }) => {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -59,6 +61,16 @@ const SelectGAMetric: FC<ISelectGAMetricProps> = ({
   useEffect(() => {
     getMetrics();
   }, [getMetrics]);
+
+  useEffect(() => {
+    if (
+      defaultMetricKey &&
+      gaMetrics.length > 0 &&
+      gaMetrics.some((el) => el.apiName === defaultMetricKey)
+    ) {
+      setMetricKey(defaultMetricKey);
+    }
+  }, [defaultMetricKey, gaMetrics, setMetricKey]);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>

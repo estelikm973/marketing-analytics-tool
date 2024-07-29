@@ -32,8 +32,8 @@ export const DataSourceContextProvider: React.FC<
 
   const fetchDataSources = async () => {
     setLoading(true);
-    const res = await getDataSources();
-    setLoading(false);
+    const res = await getDataSources().finally(() => setLoading(false));
+
     setConnectedDataSources(res?.connectedDataSources || []);
     setNonConnectedDataSources(res?.nonConnectedDataSources || []);
   };

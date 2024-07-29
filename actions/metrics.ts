@@ -10,7 +10,11 @@ export const getMyMetrics = async () => {
   if (!userId) return;
   const myMetrics: IMetric[] = await prisma.metric.findMany({
     where: { user_id: userId },
-    include: { connections: { include: { manual_entry: true } } },
+    include: {
+      connections: {
+        include: { manual_entry: true, data_source_connection: true },
+      },
+    },
     orderBy: { created_at: "desc" },
   });
 
@@ -99,16 +103,33 @@ export const saveManualEntry = async (
   return newManualEntry;
 };
 
-export const addImportedConnection = async (
+export const saveImportedConnection = async (
   metricId: string,
   metricKey: string,
-  dataSourceKey: string
+  dataSourceKey: string,
+  metricConnectionId?: string
 ) => {
   if (!metricId || !metricKey || !dataSourceKey) return null;
 
   const userId = await getUserId();
 
   if (!userId) return null;
+
+  if (metricConnectionId) {
+    const existingGAMetricConnection = await prisma.metricConnection.findUnique(
+      {
+        where: { id: metricConnectionId },
+      }
+    );
+
+    if (existingGAMetricConnection) {
+      const updatedEntry = await prisma.metricConnection.update({
+        where: { id: existingGAMetricConnection.id },
+        data: { metric_key: metricKey },
+      });
+      return updatedEntry;
+    }
+  }
 
   const metric = await prisma.metric.findUnique({ where: { id: metricId } });
 

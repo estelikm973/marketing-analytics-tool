@@ -118,6 +118,7 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
         deleteMetric,
         updateMetric,
         openAddMetricsConnectionDialog,
+        closeDialog,
       }}
     >
       {children}
@@ -130,10 +131,7 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
             <DialogHeader>
               <DialogTitle>{selectedMetric.name}</DialogTitle>
             </DialogHeader>
-            <AddMetricConnectionForm
-              metric={selectedMetric}
-              closeDialog={closeDialog}
-            />
+            <AddMetricConnectionForm metric={selectedMetric} />
           </DialogContent>
         </Dialog>
       )}
