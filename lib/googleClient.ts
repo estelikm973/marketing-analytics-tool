@@ -1,11 +1,15 @@
-// googleClient.js
 import "server-only";
 import { google } from "googleapis";
 import { BetaAnalyticsDataClient } from "@google-analytics/data";
 
 const CLIENT_ID = process.env.GOOGLE_CLIENT_ID!;
 const CLIENT_SECRET = process.env.GOOGLE_CLIENT_SECRET!;
-const REDIRECT_URI = `http://localhost:3000/api/auth/google-analytics/callback`;
+
+const BASE_URL = process.env.VERCEL_URL
+  ? `https://${process.env.VERCEL_URL}`
+  : "http://localhost:3000";
+
+const REDIRECT_URI = `${BASE_URL}/api/auth/google-analytics/callback`;
 
 export const oauth2Client = new google.auth.OAuth2(
   CLIENT_ID,
@@ -19,7 +23,6 @@ export const getAuthUrl = () => {
   return oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
-    prompt: "consent",
   });
 };
 
