@@ -78,6 +78,7 @@ export interface IDataSourceConnection {
   data_source?: any;
   data_source_key: string;
 
+  property_id: string;
   access_token: string | null;
   expiry_date: bigint | null;
   id_token: string | null;

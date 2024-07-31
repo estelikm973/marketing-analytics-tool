@@ -85,12 +85,21 @@ export async function getUserId() {
   return undefined;
 }
 
-export async function getGoogleAnalyticsAccessToken() {
+export async function getGoogleAnalyticsAccessData() {
   const gaAccessToken = cookies().get(
     cookieKeys.GOOGLE_ANALYTICS_ACCESS_TOKEN
   )?.value;
 
-  if (gaAccessToken) return gaAccessToken;
+  const gaPropertyId = cookies().get(
+    cookieKeys.GOOGLE_ANALYTICS_PROPERTY_ID
+  )?.value;
+
+  if (gaAccessToken && gaPropertyId) {
+    return {
+      access_token: gaAccessToken,
+      property_id: gaPropertyId,
+    };
+  }
 
   const userId = await getUserId();
 
@@ -110,6 +119,7 @@ export async function getGoogleAnalyticsAccessToken() {
 
   if (
     googleAnalyticsConnection.access_token &&
+    googleAnalyticsConnection.property_id &&
     googleAnalyticsConnection.expiry_date &&
     Number(googleAnalyticsConnection.expiry_date) > dayjs(new Date()).valueOf()
   ) {
@@ -117,8 +127,12 @@ export async function getGoogleAnalyticsAccessToken() {
       googleAnalyticsConnection.access_token,
       Number(googleAnalyticsConnection.expiry_date)
     );
+    setGAPropertyIdCookies(googleAnalyticsConnection.property_id);
 
-    return googleAnalyticsConnection.access_token;
+    return {
+      access_token: googleAnalyticsConnection.access_token,
+      property_id: googleAnalyticsConnection.property_id,
+    };
   }
 
   const credentials = await refreshAccessToken(
@@ -127,21 +141,26 @@ export async function getGoogleAnalyticsAccessToken() {
 
   if (!credentials.access_token || !credentials.expiry_date) return;
 
-  await prisma.dataSourceConnection.update({
-    where: { id: googleAnalyticsConnection.id },
-    data: {
-      access_token: credentials.access_token,
-      expiry_date: credentials.expiry_date,
-      refresh_token: credentials.refresh_token,
-      id_token: credentials.id_token,
-      scope: credentials.scope,
-      token_type: credentials.token_type,
-    },
-  });
+  const updatedGoogleAnalyticsConnection =
+    await prisma.dataSourceConnection.update({
+      where: { id: googleAnalyticsConnection.id },
+      data: {
+        access_token: credentials.access_token,
+        expiry_date: credentials.expiry_date,
+        refresh_token: credentials.refresh_token,
+        id_token: credentials.id_token,
+        scope: credentials.scope,
+        token_type: credentials.token_type,
+      },
+    });
 
   setGATokenCookies(credentials.access_token, credentials.expiry_date);
+  setGAPropertyIdCookies(updatedGoogleAnalyticsConnection.property_id);
 
-  return credentials.access_token;
+  return {
+    access_token: updatedGoogleAnalyticsConnection.access_token,
+    property_id: updatedGoogleAnalyticsConnection.property_id,
+  };
 }
 
 const setGATokenCookies = (access_token: string, expiry_date: number) => {
@@ -149,7 +168,16 @@ const setGATokenCookies = (access_token: string, expiry_date: number) => {
     httpOnly: true,
     secure: true,
     expires: new Date(expiry_date),
-    sameSite: "strict",
+    sameSite: "lax",
+    path: "/",
+  });
+};
+
+const setGAPropertyIdCookies = (property_id: string) => {
+  cookies().set(cookieKeys.GOOGLE_ANALYTICS_PROPERTY_ID, property_id, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "lax",
     path: "/",
   });
 };

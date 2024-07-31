@@ -4,6 +4,7 @@ import prisma from "@/lib/prisma";
 import { getUserId } from "./auth";
 import { IDataSource, IDataSourceConnection } from "@/lib/types";
 import { DataSourceKeys } from "@/data/platforms";
+import { generateAuthUrl } from "@/lib/googleClient";
 
 export const getDataSources = async () => {
   try {
@@ -91,4 +92,56 @@ export const disconnectGADataSource = async () => {
     console.log(err?.message || "Server Error");
     return null;
   }
+};
+
+export const getGAPropertyId = async () => {
+  const userId = await getUserId();
+
+  if (!userId) return;
+
+  const gaDataSourceConnection = await prisma.dataSourceConnection.findFirst({
+    where: {
+      user_id: userId,
+      data_source_key: DataSourceKeys.GOOGLE_ANALYTICS,
+    },
+  });
+
+  if (!gaDataSourceConnection) return;
+
+  return gaDataSourceConnection.property_id;
+};
+
+export const updateGAPropertyId = async (property_id: string) => {
+  const userId = await getUserId();
+
+  if (!userId) return;
+
+  const gaDataSourceConnection = await prisma.dataSourceConnection.findFirst({
+    where: {
+      user_id: userId,
+      data_source_key: DataSourceKeys.GOOGLE_ANALYTICS,
+    },
+  });
+
+  if (!gaDataSourceConnection) return;
+
+  const updatedConnection = await prisma.dataSourceConnection.update({
+    where: { id: gaDataSourceConnection.id },
+    data: { property_id },
+  });
+
+  return updatedConnection.property_id;
+};
+
+export const getAuthUrl = async (payload: {
+  user_id: string;
+  property_id: string;
+}) => {
+  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
+    "base64url"
+  );
+
+  const authUrl = generateAuthUrl(encodedPayload);
+
+  return authUrl;
 };

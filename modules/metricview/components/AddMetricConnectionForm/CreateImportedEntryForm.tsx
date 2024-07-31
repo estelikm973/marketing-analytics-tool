@@ -52,7 +52,7 @@ const CreateImportedEntryForm: FC<ICreateImportedEntryFormProps> = ({
           connection.data_source_connection?.data_source_key ===
           DataSourceKeys.GOOGLE_ANALYTICS
       );
-      console.log({ googleAnalyticsConnection });
+
       if (googleAnalyticsConnection) {
         setGAMetricConnectionId(googleAnalyticsConnection.id);
         setDefaultMetricKey(googleAnalyticsConnection.metric_key || "");

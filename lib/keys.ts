@@ -3,6 +3,7 @@ import "server-only";
 export const cookieKeys = {
   SESSION: "session",
   GOOGLE_ANALYTICS_ACCESS_TOKEN: "_g_a_access_token",
+  GOOGLE_ANALYTICS_PROPERTY_ID: "_g_a_property_id",
 };
 
 export const cookieExpTimes = {

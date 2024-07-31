@@ -33,7 +33,7 @@ export async function createSession(userId: string) {
     httpOnly: true,
     secure: true,
     expires: new Date(expiresAt),
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
   });
 }
@@ -51,7 +51,7 @@ export async function updateSession() {
     httpOnly: true,
     secure: true,
     expires: expires,
-    sameSite: "strict",
+    sameSite: "lax",
     path: "/",
   });
 }

@@ -51,7 +51,7 @@ model MetricConnection {
   manual_entry ManualEntry?
 
   // for imported data
-  data_source_connection    DataSourceConnection? @relation(fields: [data_source_connection_id], references: [id])
+  data_source_connection    DataSourceConnection? @relation(fields: [data_source_connection_id], references: [id], onDelete: Cascade)
   data_source_connection_id String?
   metric_key                String?
 }
@@ -79,6 +79,7 @@ model DataSourceConnection {
   data_source     DataSource @relation(fields: [data_source_key], references: [key])
   data_source_key String
 
+  property_id   String  @default("")
   access_token  String?
   expiry_date   BigInt?
   id_token      String?

@@ -19,11 +19,12 @@ export const oauth2Client = new google.auth.OAuth2(
 
 const SCOPES = ["https://www.googleapis.com/auth/analytics.readonly"];
 
-export const getAuthUrl = () => {
+export const generateAuthUrl = (payload: string) => {
   return oauth2Client.generateAuthUrl({
     access_type: "offline",
     scope: SCOPES,
     prompt: "consent",
+    state: payload,
   });
 };
 

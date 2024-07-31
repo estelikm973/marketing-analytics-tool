@@ -3,6 +3,7 @@
 import { FC } from "react";
 import ConnectGoogleAnalyticsButton from "./ConnectGoogleAnalyticsButton";
 import DisconnectGoogleAnalyticsButton from "./DisconnectGoogleAnalyticsButton";
+import SavePropertyIdForm from "./SavePropertyIdForm";
 
 interface IGAConenctFormProps {
   isConnected: boolean;
@@ -11,12 +12,16 @@ interface IGAConenctFormProps {
 const GAConenctForm: FC<IGAConenctFormProps> = ({ isConnected }) => {
   return (
     <div>
-      <div className="text-sm mb-2">
+      <div className="text-sm mb-4">
         <span className="font-semibold">Status:</span>&nbsp;
         {isConnected ? "Connected" : "Not Connected"}
       </div>
+
       {isConnected ? (
-        <DisconnectGoogleAnalyticsButton />
+        <div className="space-y-4">
+          <SavePropertyIdForm />
+          <DisconnectGoogleAnalyticsButton />
+        </div>
       ) : (
         <ConnectGoogleAnalyticsButton />
       )}
