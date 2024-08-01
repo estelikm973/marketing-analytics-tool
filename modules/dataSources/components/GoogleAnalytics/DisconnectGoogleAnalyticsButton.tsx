@@ -1,4 +1,3 @@
-// modules/dataSources/components/GoogleAnalytics/ConnectGoogleAnalyticsButton.tsx
 "use client";
 
 import { useContext } from "react";
@@ -20,7 +19,11 @@ const DisconnectGoogleAnalyticsButton = () => {
 
   return (
     <form action={handleDisconnect}>
-      <LoadingButton defaultText="Disconnect" loadingText="Disconnecting..." />
+      <LoadingButton
+        variant="destructive"
+        defaultText="Disconnect"
+        loadingText="Disconnecting..."
+      />
     </form>
   );
 };

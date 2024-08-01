@@ -56,6 +56,10 @@ export const DataSourceContextProvider: React.FC<
     setDialogOpen(true);
   };
 
+  const closeDialog = () => {
+    setDialogOpen(false);
+  };
+
   useEffect(() => {
     fetchDataSources();
   }, []);
@@ -67,6 +71,7 @@ export const DataSourceContextProvider: React.FC<
         nonConnectedDataSources,
         fetchDataSources,
         openDialog,
+        closeDialog,
         loading,
         setIsConnected,
       }}

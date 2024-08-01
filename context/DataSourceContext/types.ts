@@ -10,6 +10,7 @@ export interface IDataSourceContext {
   connectedDataSources: IDataSourceConnection[];
   fetchDataSources: () => Promise<void>;
   openDialog: (selectedDataSource: IDataSource, isConnected: boolean) => void;
+  closeDialog: () => void;
   loading: boolean;
   setIsConnected: Dispatch<React.SetStateAction<boolean>>;
 }

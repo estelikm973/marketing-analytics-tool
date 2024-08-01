@@ -1,10 +1,14 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getUserId } from "./auth";
+import {
+  getGoogleAnalyticsAccessData,
+  getUserId,
+  setGAPropertyIdCookies,
+} from "./auth";
 import { IDataSource, IDataSourceConnection } from "@/lib/types";
 import { DataSourceKeys } from "@/data/platforms";
-import { generateAuthUrl } from "@/lib/googleClient";
+import { analyticsAdminClient, generateAuthUrl } from "@/lib/googleClient";
 
 export const getDataSources = async () => {
   try {
@@ -94,7 +98,7 @@ export const disconnectGADataSource = async () => {
   }
 };
 
-export const getGAPropertyId = async () => {
+export const getGAPropertyAccount = async () => {
   const userId = await getUserId();
 
   if (!userId) return;
@@ -104,14 +108,18 @@ export const getGAPropertyId = async () => {
       user_id: userId,
       data_source_key: DataSourceKeys.GOOGLE_ANALYTICS,
     },
+    select: { id: true, account_name: true, property_name: true },
   });
 
   if (!gaDataSourceConnection) return;
 
-  return gaDataSourceConnection.property_id;
+  return gaDataSourceConnection;
 };
 
-export const updateGAPropertyId = async (property_id: string) => {
+export const updateGAProperty = async (
+  account_name: string,
+  property_name: string
+) => {
   const userId = await getUserId();
 
   if (!userId) return;
@@ -127,21 +135,66 @@ export const updateGAPropertyId = async (property_id: string) => {
 
   const updatedConnection = await prisma.dataSourceConnection.update({
     where: { id: gaDataSourceConnection.id },
-    data: { property_id },
+    data: { property_name, account_name },
   });
 
-  return updatedConnection.property_id;
+  setGAPropertyIdCookies(property_name);
+
+  return updatedConnection.id;
 };
 
-export const getAuthUrl = async (payload: {
-  user_id: string;
-  property_id: string;
-}) => {
-  const encodedPayload = Buffer.from(JSON.stringify(payload)).toString(
-    "base64url"
-  );
+export const getAuthUrl = async () => {
+  const userId = await getUserId();
 
-  const authUrl = generateAuthUrl(encodedPayload);
+  if (!userId) return;
+
+  const authUrl = generateAuthUrl(userId);
 
   return authUrl;
+};
+
+export const getAccountList = async () => {
+  try {
+    const accessData = await getGoogleAnalyticsAccessData();
+
+    if (!accessData || !accessData.access_token) return null;
+
+    const { access_token } = accessData;
+
+    const res = await analyticsAdminClient(access_token).listAccounts();
+
+    return (
+      res[0].map((el) => ({
+        displayName: el.displayName || "-",
+        name: el.name || "-",
+      })) || []
+    );
+  } catch (err: any) {
+    console.error(err?.message || "Server Error");
+    return null;
+  }
+};
+
+export const getPropertyList = async (accountName: string) => {
+  try {
+    const accessData = await getGoogleAnalyticsAccessData();
+
+    if (!accessData || !accessData.access_token) return null;
+
+    const { access_token } = accessData;
+
+    const res = await analyticsAdminClient(access_token).listProperties({
+      filter: `parent:${accountName}`,
+    });
+
+    return (
+      res[0].map((el) => ({
+        displayName: el.displayName || "-",
+        name: el.name || "-",
+      })) || []
+    );
+  } catch (err: any) {
+    console.error(err?.message || "Server Error");
+    return null;
+  }
 };

@@ -23,14 +23,7 @@ export async function GET(request: Request) {
       return NextResponse.redirect(new URL("/signin", request.url));
     }
 
-    const decodedState = Buffer.from(state, "base64url").toString();
-
-    const { user_id, property_id } = JSON.parse(decodedState);
-
-    if (!user_id) {
-      return NextResponse.redirect(new URL("/signin", request.url));
-    }
-    const user = await prisma.user.findUnique({ where: { id: user_id } });
+    const user = await prisma.user.findUnique({ where: { id: state } });
 
     if (!user) {
       return NextResponse.redirect(new URL("/signin", request.url));
@@ -63,7 +56,6 @@ export async function GET(request: Request) {
           refresh_token: tokens.refresh_token,
           scope: tokens.scope,
           token_type: tokens.token_type,
-          property_id: property_id,
         },
       });
     }

@@ -90,14 +90,14 @@ export async function getGoogleAnalyticsAccessData() {
     cookieKeys.GOOGLE_ANALYTICS_ACCESS_TOKEN
   )?.value;
 
-  const gaPropertyId = cookies().get(
-    cookieKeys.GOOGLE_ANALYTICS_PROPERTY_ID
+  const gaPropertyName = cookies().get(
+    cookieKeys.GOOGLE_ANALYTICS_PROPERTY_NAME
   )?.value;
 
-  if (gaAccessToken && gaPropertyId) {
+  if (gaAccessToken && gaPropertyName) {
     return {
       access_token: gaAccessToken,
-      property_id: gaPropertyId,
+      property_name: gaPropertyName,
     };
   }
 
@@ -119,7 +119,7 @@ export async function getGoogleAnalyticsAccessData() {
 
   if (
     googleAnalyticsConnection.access_token &&
-    googleAnalyticsConnection.property_id &&
+    googleAnalyticsConnection.property_name &&
     googleAnalyticsConnection.expiry_date &&
     Number(googleAnalyticsConnection.expiry_date) > dayjs(new Date()).valueOf()
   ) {
@@ -127,11 +127,11 @@ export async function getGoogleAnalyticsAccessData() {
       googleAnalyticsConnection.access_token,
       Number(googleAnalyticsConnection.expiry_date)
     );
-    setGAPropertyIdCookies(googleAnalyticsConnection.property_id);
+    setGAPropertyIdCookies(googleAnalyticsConnection.property_name);
 
     return {
       access_token: googleAnalyticsConnection.access_token,
-      property_id: googleAnalyticsConnection.property_id,
+      property_name: googleAnalyticsConnection.property_name,
     };
   }
 
@@ -155,11 +155,11 @@ export async function getGoogleAnalyticsAccessData() {
     });
 
   setGATokenCookies(credentials.access_token, credentials.expiry_date);
-  setGAPropertyIdCookies(updatedGoogleAnalyticsConnection.property_id);
+  setGAPropertyIdCookies(updatedGoogleAnalyticsConnection.property_name);
 
   return {
     access_token: updatedGoogleAnalyticsConnection.access_token,
-    property_id: updatedGoogleAnalyticsConnection.property_id,
+    property_name: updatedGoogleAnalyticsConnection.property_name,
   };
 }
 
@@ -173,8 +173,8 @@ const setGATokenCookies = (access_token: string, expiry_date: number) => {
   });
 };
 
-const setGAPropertyIdCookies = (property_id: string) => {
-  cookies().set(cookieKeys.GOOGLE_ANALYTICS_PROPERTY_ID, property_id, {
+export const setGAPropertyIdCookies = (property_name: string) => {
+  cookies().set(cookieKeys.GOOGLE_ANALYTICS_PROPERTY_NAME, property_name, {
     httpOnly: true,
     secure: true,
     sameSite: "lax",

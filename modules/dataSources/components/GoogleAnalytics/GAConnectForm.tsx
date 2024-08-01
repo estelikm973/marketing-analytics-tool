@@ -3,7 +3,7 @@
 import { FC } from "react";
 import ConnectGoogleAnalyticsButton from "./ConnectGoogleAnalyticsButton";
 import DisconnectGoogleAnalyticsButton from "./DisconnectGoogleAnalyticsButton";
-import SavePropertyIdForm from "./SavePropertyIdForm";
+import PropertyForm from "./PropertyForm";
 
 interface IGAConenctFormProps {
   isConnected: boolean;
@@ -18,8 +18,9 @@ const GAConenctForm: FC<IGAConenctFormProps> = ({ isConnected }) => {
       </div>
 
       {isConnected ? (
-        <div className="space-y-4">
-          <SavePropertyIdForm />
+        <div className="space-y-5">
+          <PropertyForm />
+          <hr className="divide-x" />
           <DisconnectGoogleAnalyticsButton />
         </div>
       ) : (

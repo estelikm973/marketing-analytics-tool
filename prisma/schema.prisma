@@ -79,7 +79,8 @@ model DataSourceConnection {
   data_source     DataSource @relation(fields: [data_source_key], references: [key])
   data_source_key String
 
-  property_id   String  @default("")
+  account_name  String  @default("")
+  property_name String  @default("")
   access_token  String?
   expiry_date   BigInt?
   id_token      String?

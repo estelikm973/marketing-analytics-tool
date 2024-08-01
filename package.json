@@ -10,6 +10,7 @@
     "vercel-build": "prisma generate && next build"
   },
   "dependencies": {
+    "@google-analytics/admin": "^7.5.0",
     "@google-analytics/data": "^4.7.0",
     "@next/third-parties": "^14.2.4",
     "@prisma/client": "^5.16.2",

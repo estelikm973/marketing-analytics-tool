@@ -10,13 +10,13 @@ export async function runReport(
 ) {
   const accessData = await getGoogleAnalyticsAccessData();
 
-  if (!accessData || !accessData.access_token || !accessData.property_id)
+  if (!accessData || !accessData.access_token || !accessData.property_name)
     return null;
 
-  const { access_token, property_id } = accessData;
+  const { access_token, property_name } = accessData;
 
   const res = await analyticsDataClient(access_token).runReport({
-    property: `properties/${property_id}`,
+    property: `${property_name}`,
     dateRanges: [
       {
         startDate: "2020-01-01",
@@ -39,13 +39,13 @@ export async function getGAMetricSum(
 ) {
   const accessData = await getGoogleAnalyticsAccessData();
 
-  if (!accessData || !accessData.access_token || !accessData.property_id)
+  if (!accessData || !accessData.access_token || !accessData.property_name)
     return null;
 
-  const { access_token, property_id } = accessData;
+  const { access_token, property_name } = accessData;
 
   const res = await analyticsDataClient(access_token).runReport({
-    property: `properties/${property_id}`,
+    property: `${property_name}`,
     dateRanges: [
       {
         startDate: "2020-01-01",
@@ -69,13 +69,13 @@ export const getMetaData = async () => {
   try {
     const accessData = await getGoogleAnalyticsAccessData();
 
-    if (!accessData || !accessData.access_token || !accessData.property_id)
+    if (!accessData || !accessData.access_token || !accessData.property_name)
       return null;
 
-    const { access_token, property_id } = accessData;
+    const { access_token, property_name } = accessData;
 
     const res = await analyticsDataClient(access_token).getMetadata({
-      name: `properties/${property_id}/metadata`,
+      name: `${property_name}/metadata`,
     });
 
     return res[0];
@@ -92,13 +92,13 @@ export async function getCompatibleDimensionsAndMetrics(
   try {
     const accessData = await getGoogleAnalyticsAccessData();
 
-    if (!accessData || !accessData.access_token || !accessData.property_id)
+    if (!accessData || !accessData.access_token || !accessData.property_name)
       return null;
 
-    const { access_token, property_id } = accessData;
+    const { access_token, property_name } = accessData;
 
     const res = await analyticsDataClient(access_token).checkCompatibility({
-      property: `properties/${property_id}`,
+      property: `${property_name}`,
       dimensions: dimensionApiNames.map((el) => ({ name: el })),
       metrics: metricApiNames.map((el) => ({ name: el })),
       compatibilityFilter: 1,
