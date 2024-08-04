@@ -26,6 +26,7 @@ export interface IMetric {
   user_id: string;
 
   name: string;
+  format: string;
   show_on_grid: boolean;
   show_on_table: boolean;
 }
@@ -35,10 +36,12 @@ interface IMetricConnection {
   created_at: Date;
   updated_at: Date;
 
-  metric?: IMetric | null;
+  metric?: IMetric;
   metric_id: string;
 
-  manual_entry?: IManualEntry | null;
+  manual_entries?: IManualEntry[];
+  manual_data_source?: IManualDataSource;
+  manual_data_source_id?: string | null;
 
   data_source_connection?: IDataSourceConnection | null;
   data_source_connection_id: string | null;
@@ -88,7 +91,7 @@ export interface IDataSourceConnection {
   token_type: string | null;
 }
 
-interface IManualEntry {
+export interface IManualEntry {
   id: string;
   created_at: Date;
   updated_at: Date;
@@ -97,7 +100,20 @@ interface IManualEntry {
   metric_connection_id: string;
 
   value: bigint;
-  format: string;
-  date_from: Date;
-  date_to: Date;
+  entry_date: string;
+}
+
+export interface IManualDataSource {
+  id: string;
+  created_at: Date;
+  updated_at: Date;
+
+  entries?: IManualEntry[];
+  metric_connections?: IMetricConnection[];
+
+  user?: any;
+  user_id: string;
+
+  key: string; // marketing-agency / graphic-design etc.
+  name: string;
 }

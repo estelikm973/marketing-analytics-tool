@@ -11,3 +11,10 @@ export const cookieExpTimes = {
 };
 
 export const sessionSecretKey = process.env.SESSION_SECRET;
+
+// number / money / percentage
+export enum MetricFormat {
+  PLAIN_NUMBER = "number",
+  MONEY = "money",
+  PERCENTAGE = "percentage",
+}

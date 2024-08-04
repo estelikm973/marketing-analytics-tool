@@ -24,4 +24,6 @@ export interface IMetricContext {
   deleteMetric: (id: string) => Promise<void>;
   openAddMetricsConnectionDialog: (metric: IMetric) => void;
   closeDialog: () => void;
+  filterDate: Date;
+  setFilterDate: Dispatch<React.SetStateAction<Date>>;
 }

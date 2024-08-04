@@ -3,6 +3,7 @@
 import prisma from "@/lib/prisma";
 import { getUserId } from "./auth";
 import { IMetric } from "@/lib/types";
+import dayjs from "dayjs";
 
 export const getMyMetrics = async () => {
   const userId = await getUserId();
@@ -12,7 +13,7 @@ export const getMyMetrics = async () => {
     where: { user_id: userId },
     include: {
       connections: {
-        include: { manual_entry: true, data_source_connection: true },
+        include: { manual_entries: true, data_source_connection: true },
       },
     },
     orderBy: { created_at: "desc" },
@@ -60,43 +61,39 @@ export const deleteMetricById = async (id: string) => {
 
 export const saveManualEntry = async (
   metricId: string,
+  manualDataSourceId: string,
   value: number,
-  format: string,
-  dateFrom: Date,
-  dateTo: Date,
-  entryId?: string
+  entry_date: Date
 ) => {
-  if (!metricId || !value || !format || !dateFrom || !dateTo) return null;
+  const userId = await getUserId();
 
-  if (entryId) {
-    const existingEntry = await prisma.manualEntry.findUnique({
-      where: { id: entryId },
-    });
-
-    if (existingEntry) {
-      const updatedEntry = await prisma.manualEntry.update({
-        where: { id: existingEntry.id },
-        data: { value, format, date_from: dateFrom, date_to: dateTo },
-      });
-      return updatedEntry;
-    }
-  }
+  if (!userId || !metricId || !value || !entry_date) return null;
 
   const metric = await prisma.metric.findUnique({ where: { id: metricId } });
 
   if (!metric) return null;
 
-  const newMetricConnection = await prisma.metricConnection.create({
-    data: { metric_id: metric.id },
+  let metricConnectionId = "";
+  const metricConnection = await prisma.metricConnection.findFirst({
+    where: { metric_id: metric.id, manual_data_source_id: manualDataSourceId },
   });
+
+  if (!metricConnection) {
+    const newMetricConnection = await prisma.metricConnection.create({
+      data: { metric_id: metric.id, manual_data_source_id: manualDataSourceId },
+    });
+
+    metricConnectionId = newMetricConnection.id;
+  } else {
+    metricConnectionId = metricConnection.id;
+  }
 
   const newManualEntry = await prisma.manualEntry.create({
     data: {
-      metric_connection_id: newMetricConnection.id,
+      metric_connection_id: metricConnectionId,
+      manual_data_source_id: manualDataSourceId,
       value,
-      format,
-      date_from: dateFrom,
-      date_to: dateTo,
+      entry_date: dayjs(entry_date).format("YYYY-MM-DD"),
     },
   });
 

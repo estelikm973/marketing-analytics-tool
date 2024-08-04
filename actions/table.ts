@@ -1,14 +1,14 @@
 "use server";
 
 import prisma from "@/lib/prisma";
-import { getGAMetricSum } from "./analytics";
 import { getUserId } from "./auth";
 import { IMetric } from "@/lib/types";
-import { DataSourceKeys } from "@/data/platforms";
+import { getGoogleAnalyticsTotal, getManualTotal } from "./grid";
+import dayjs from "dayjs";
 
 type TableRow = string[];
 
-export const getTableData = async () => {
+export const getTableData = async (filterDate: string) => {
   const tableHead = ["Non-Paid Channel"];
   const tableBody: string[][] = [];
   const tableFoot = ["Total"];
@@ -27,10 +27,13 @@ export const getTableData = async () => {
     where: { user_id: userId, show_on_table: true },
     include: {
       connections: {
-        include: { manual_entry: true, data_source_connection: true },
+        include: { manual_entries: true, data_source_connection: true },
       },
     },
   });
+
+  const dateFrom = dayjs(filterDate).startOf("month").format("YYYY-MM-DD");
+  const dateTo = dayjs(filterDate).endOf("month").format("YYYY-MM-DD");
 
   for (let i = 0; i < tableMetrics.length; i++) {
     const metric: IMetric = tableMetrics[i];
@@ -39,7 +42,7 @@ export const getTableData = async () => {
     tableHead.push(metric.name);
 
     // Manual Data
-    const manualData: number | undefined = getManualData(metric);
+    const manualData: number = await getManualTotal(metric, dateFrom, dateTo);
     if (manualData !== undefined) {
       isManualRowEmpty = false;
       manualRow.push(manualData.toString());
@@ -49,7 +52,11 @@ export const getTableData = async () => {
     }
 
     // Google Analytics Data
-    const gaData: number | undefined = await getGoogleAnalyticsData(metric);
+    const gaData: number | undefined = await getGoogleAnalyticsTotal(
+      metric,
+      dateFrom,
+      dateTo
+    );
     if (gaData !== undefined) {
       isGoogleAnalyticsRowEmpty = false;
       googleAnalyticsRow.push(gaData.toString());
@@ -70,38 +77,4 @@ export const getTableData = async () => {
   }
 
   return { tableHead, tableBody, tableFoot };
-};
-
-const getManualData: (metric: IMetric) => number | undefined = (
-  metric: IMetric
-) => {
-  let data = undefined;
-
-  const manualEntry = metric.connections?.find(
-    (connection) => !!connection.manual_entry
-  )?.manual_entry;
-
-  if (manualEntry && !!manualEntry?.value) {
-    data = Number(manualEntry.value);
-  }
-
-  return data;
-};
-
-const getGoogleAnalyticsData: (
-  metric: IMetric
-) => Promise<number | undefined> = async (metric: IMetric) => {
-  const metricGAConnection = metric.connections?.find(
-    (el) =>
-      el.data_source_connection?.data_source_key ===
-      DataSourceKeys.GOOGLE_ANALYTICS
-  );
-
-  if (!metricGAConnection || !metricGAConnection.metric_key) return;
-
-  const sum = await getGAMetricSum(metricGAConnection.metric_key);
-
-  if (!sum || isNaN(Number(sum))) return;
-
-  return Number(sum);
 };

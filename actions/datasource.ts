@@ -6,7 +6,11 @@ import {
   getUserId,
   setGAPropertyIdCookies,
 } from "./auth";
-import { IDataSource, IDataSourceConnection } from "@/lib/types";
+import {
+  IDataSource,
+  IDataSourceConnection,
+  IManualDataSource,
+} from "@/lib/types";
 import { DataSourceKeys } from "@/data/platforms";
 import { analyticsAdminClient, generateAuthUrl } from "@/lib/googleClient";
 
@@ -196,5 +200,35 @@ export const getPropertyList = async (accountName: string) => {
   } catch (err: any) {
     console.error(err?.message || "Server Error");
     return null;
+  }
+};
+
+export const getManualDataSources: () => Promise<
+  IManualDataSource[] | undefined
+> = async () => {
+  try {
+    const userId = await getUserId();
+
+    if (!userId) return;
+
+    const manualDataSources: IManualDataSource[] =
+      await prisma.manualDataSource.findMany({
+        where: { user_id: userId },
+      });
+
+    // TODO: Remove this later and add ManualDataSource create function
+    if (!manualDataSources.length) {
+      const newManualDataSource: IManualDataSource =
+        await prisma.manualDataSource.create({
+          data: { user_id: userId, key: "default", name: "Manual" },
+        });
+
+      return [newManualDataSource];
+    }
+
+    return manualDataSources;
+  } catch (err: any) {
+    console.error(err?.message || "Server Error");
+    return;
   }
 };

@@ -3,11 +3,19 @@
 import { analyticsDataClient } from "@/lib/googleClient";
 import { getGoogleAnalyticsAccessData } from "./auth";
 
-export async function runReport(
-  dimensions: { name: string }[],
-  metrics: { name: string }[],
-  orderBys?: any
-) {
+export async function runReport({
+  dimensions,
+  metrics,
+  startDate,
+  endDate,
+  orderBys,
+}: {
+  dimensions: { name: string }[];
+  metrics: { name: string }[];
+  startDate: string;
+  endDate: string;
+  orderBys?: any;
+}) {
   const accessData = await getGoogleAnalyticsAccessData();
 
   if (!accessData || !accessData.access_token || !accessData.property_name)
@@ -19,8 +27,8 @@ export async function runReport(
     property: `${property_name}`,
     dateRanges: [
       {
-        startDate: "2020-01-01",
-        endDate: "today",
+        startDate,
+        endDate,
       },
     ],
     dimensions,
@@ -32,11 +40,15 @@ export async function runReport(
   return res[0];
 }
 
-export async function getGAMetricSum(
-  metric: string,
-  startDate?: string,
-  endDate?: string
-) {
+export async function getGAMetricSum({
+  metricKey,
+  startDate,
+  endDate,
+}: {
+  metricKey: string;
+  startDate?: string;
+  endDate?: string;
+}) {
   const accessData = await getGoogleAnalyticsAccessData();
 
   if (!accessData || !accessData.access_token || !accessData.property_name)
@@ -48,12 +60,12 @@ export async function getGAMetricSum(
     property: `${property_name}`,
     dateRanges: [
       {
-        startDate: "2020-01-01",
-        endDate: "today",
+        startDate,
+        endDate,
       },
     ],
     dimensions: [],
-    metrics: [{ name: metric }],
+    metrics: [{ name: metricKey }],
     metricAggregations: [1],
   });
 
@@ -111,13 +123,20 @@ export async function getCompatibleDimensionsAndMetrics(
   }
 }
 
-export const getGAGridGraphData = async (metricKey: string) => {
+//TODO: Remove
+export const getGAGridGraphData = async (
+  metricKey: string,
+  dateFrom: string,
+  dateTo: string
+) => {
   try {
-    const report = await runReport(
-      [{ name: "date" }],
-      [{ name: metricKey }],
-      [{ dimension: { dimensionName: "date" } }]
-    );
+    const report = await runReport({
+      dimensions: [{ name: "date" }],
+      metrics: [{ name: metricKey }],
+      orderBys: [{ dimension: { dimensionName: "date" } }],
+      startDate: dateFrom,
+      endDate: dateTo,
+    });
 
     if (!report?.rowCount) {
       return;

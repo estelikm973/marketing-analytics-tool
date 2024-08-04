@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import AddMetricConnectionForm from "@/modules/metricview/components/AddMetricConnectionForm";
+import dayjs from "dayjs";
 
 export const MetricContext = createContext<IMetricContext>(
   {} as IMetricContext
@@ -34,8 +35,28 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
   const [metricsLoading, setMetricsLoading] = useState<boolean>(false);
   const [addMetricsConnectionDialogOpen, setAddMetricsConnectionDialogOpen] =
     useState<boolean>(false);
-
   const [selectedMetric, setSelectedMetric] = useState<IMetric>();
+  const [filterDate, setFilterDate] = useState<Date>(new Date());
+
+  const fetchGridData = useCallback(async () => {
+    if (!filterDate) return;
+
+    const res = await getGridData(dayjs(filterDate).format("YYYY-MM-DD"));
+
+    if (res) {
+      setGridData(res);
+    }
+  }, [filterDate]);
+
+  const fetchTableData = useCallback(async () => {
+    if (!filterDate) return;
+
+    const res = await getTableData(dayjs(filterDate).format("YYYY-MM-DD"));
+
+    if (res) {
+      setTableData(res);
+    }
+  }, [filterDate]);
 
   const fetchMyMetrics = useCallback(async () => {
     setMetricsLoading(true);
@@ -51,23 +72,7 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
 
     fetchTableData().finally(() => setTableLoading(false));
     fetchGridData().finally(() => setGridLoading(false));
-  }, []);
-
-  const fetchTableData = async () => {
-    const res = await getTableData();
-
-    if (res) {
-      setTableData(res);
-    }
-  };
-
-  const fetchGridData = async () => {
-    const res = await getGridData();
-
-    if (res) {
-      setGridData(res);
-    }
-  };
+  }, [fetchGridData, fetchTableData]);
 
   const updateMetric = async (
     id: string,
@@ -103,7 +108,7 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
 
   useEffect(() => {
     fetchMyMetrics();
-  }, [fetchMyMetrics]);
+  }, [fetchMyMetrics, filterDate]);
 
   return (
     <MetricContext.Provider
@@ -119,6 +124,8 @@ export const MetricContextProvider: React.FC<IMetricContextProvider> = ({
         updateMetric,
         openAddMetricsConnectionDialog,
         closeDialog,
+        filterDate,
+        setFilterDate,
       }}
     >
       {children}

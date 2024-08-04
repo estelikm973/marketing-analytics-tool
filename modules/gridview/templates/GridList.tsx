@@ -14,8 +14,8 @@ const GridList = () => {
         {gridLoading ? (
           <EmptyList text="Loading..." />
         ) : gridData.length ? (
-          gridData.map((el) => {
-            return <GridListItem key={el.data.yDataKey} gridData={el} />;
+          gridData.map((el, index) => {
+            return <GridListItem key={index} gridData={el} />;
           })
         ) : (
           <EmptyList />

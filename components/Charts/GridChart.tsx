@@ -8,7 +8,6 @@ import {
   ChartTooltipContent,
 } from "../ui/chart";
 import { FC, useEffect } from "react";
-import dayjs from "dayjs";
 
 interface IGridChartProps {
   data: any[];
@@ -65,17 +64,7 @@ const GridChart: FC<IGridChartProps> = ({
         <XAxis hide dataKey={xDataKey} />
         <ChartTooltip
           content={
-            <ChartTooltipContent
-              className="w-[150px]"
-              nameKey="views"
-              labelFormatter={(value) => {
-                if (dayjs(value).isValid()) {
-                  return dayjs(value).format("MMM DD, YYYY");
-                } else {
-                  return value;
-                }
-              }}
-            />
+            <ChartTooltipContent className="w-[150px]" nameKey="views" />
           }
         />
         <Line

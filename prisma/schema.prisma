@@ -18,6 +18,7 @@ model User {
 
   metrics                 Metric[]
   data_source_connections DataSourceConnection[]
+  manual_data_sources     ManualDataSource[]
 
   name     String
   email    String @unique
@@ -35,6 +36,7 @@ model Metric {
   user_id     String
 
   name          String
+  format        String  @default("number") // number / money / percentage
   show_on_grid  Boolean @default(false)
   show_on_table Boolean @default(false)
 }
@@ -47,8 +49,10 @@ model MetricConnection {
   metric    Metric @relation(fields: [metric_id], references: [id], onDelete: Cascade)
   metric_id String
 
-  //for manual entry
-  manual_entry ManualEntry?
+  //for manual data
+  manual_entries        ManualEntry[]
+  manual_data_source    ManualDataSource? @relation(fields: [manual_data_source_id], references: [id], onDelete: Cascade)
+  manual_data_source_id String?
 
   // for imported data
   data_source_connection    DataSourceConnection? @relation(fields: [data_source_connection_id], references: [id], onDelete: Cascade)
@@ -89,16 +93,30 @@ model DataSourceConnection {
   token_type    String?
 }
 
+model ManualDataSource {
+  id                 String             @id @default(uuid())
+  created_at         DateTime           @default(now())
+  updated_at         DateTime           @updatedAt
+  entries            ManualEntry[]
+  metric_connections MetricConnection[]
+
+  user    User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  user_id String
+
+  key  String // marketing-agency / graphic-design etc.
+  name String
+}
+
 model ManualEntry {
   id         String   @id @default(uuid())
   created_at DateTime @default(now())
   updated_at DateTime @updatedAt
 
-  metric_connection    MetricConnection @relation(fields: [metric_connection_id], references: [id], onDelete: Cascade)
-  metric_connection_id String           @unique
+  metric_connection     MetricConnection @relation(fields: [metric_connection_id], references: [id], onDelete: Cascade)
+  metric_connection_id  String
+  manual_data_source    ManualDataSource @relation(fields: [manual_data_source_id], references: [id], onDelete: Cascade)
+  manual_data_source_id String
 
-  value     BigInt
-  format    String   @default("")
-  date_from DateTime
-  date_to   DateTime
+  value      BigInt
+  entry_date String @default("")
 }
